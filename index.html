@@ -114,12 +114,12 @@
                      data-fillout-dynamic-resize></div>
                 <script src="https://server.fillout.com/embed/v1/"></script>
                 
-                <!-- Manual completion button -->
-                <div style="text-align: center; margin-top: 20px; padding: 20px; background: #f0f0f0; border-radius: 8px;">
-                    <p style="margin-bottom: 10px; color: #584738;">After completing the form above, click here to proceed:</p>
+                <div style="text-align: center; margin-top: 30px; padding: 25px; background: linear-gradient(135deg, #fef3c7, #f1eada); border-radius: 12px; border: 2px solid #b59e7d;">
+                    <h3 style="color: #584738; margin-bottom: 15px; font-family: 'Playfair Display', serif;">Finished with the Demographics?</h3>
+                    <p style="margin-bottom: 20px; color: #584738; font-size: 0.95rem;">Only proceed if you've completed ALL demographic questions above and submitted the form.</p>
                     <button onclick="manualFormComplete()" 
-                            style="background: #584738; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer;">
-                        I've Completed the Form - Continue to Korero
+                            style="background: #584738; color: white; padding: 15px 30px; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; font-weight: 500;">
+                        I've Completed Demographics - Continue to Korero
                     </button>
                 </div>
             </div>
@@ -169,7 +169,6 @@
         let formCompleted = false;
         let currentSessionId = null;
 
-        // Create session function
         async function createSession() {
             try {
                 const response = await fetch('/api/create-session', {
@@ -185,7 +184,6 @@
             }
         }
 
-        // Initialize session
         async function initializeSession() {
             try {
                 let sessionId = localStorage.getItem('trurivu_session_id');
@@ -201,7 +199,9 @@
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('form-container').style.display = 'block';
                 
-                // Add session ID to URL for Fill Out to capture
+                // IMPORTANT: Ensure conversation starter stays hidden until form completion
+                document.getElementById('conversation-starter').style.display = 'none';
+                
                 const url = new URL(window.location);
                 url.searchParams.set('session_id', sessionId);
                 window.history.replaceState({}, '', url);
@@ -212,7 +212,6 @@
             }
         }
 
-        // Handle form completion (automatic detection)
         window.addEventListener('message', function(event) {
             console.log('Received message:', event.data);
             
@@ -228,11 +227,14 @@
             }
         });
 
-        // Manual form completion
         function manualFormComplete() {
-            console.log('Manual form completion triggered');
-            formCompleted = true;
-            showConversationStarter();
+            const confirmed = confirm("Have you completed all the demographic questions above? Click OK to proceed to the conversation, or Cancel to continue filling out the form.");
+            
+            if (confirmed) {
+                console.log('Manual form completion confirmed');
+                formCompleted = true;
+                showConversationStarter();
+            }
         }
 
         function showConversationStarter() {
@@ -255,7 +257,6 @@
             document.getElementById('overlay-session-display').textContent = currentSessionId.substring(0, 20) + '...';
             document.getElementById('conversation-overlay').style.display = 'block';
             
-            // Load ElevenLabs widget dynamically to avoid policy issues
             loadElevenLabsWidget();
             initializeConversationLogging();
         }
@@ -269,7 +270,6 @@
                 </elevenlabs-convai>
             `;
             
-            // Load script dynamically
             if (!document.getElementById('elevenlabs-script')) {
                 const script = document.createElement('script');
                 script.id = 'elevenlabs-script';
@@ -283,7 +283,6 @@
             document.getElementById('conversation-overlay').style.display = 'none';
         }
 
-        // Conversation logging
         function initializeConversationLogging() {
             if (!formCompleted || !currentSessionId) {
                 console.error('Cannot start conversation logging - form not completed or no session');
