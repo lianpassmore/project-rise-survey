@@ -117,38 +117,52 @@
         }
         // Integrate conversation event tracking from the ElevenLabs widget
         function initializeConversationLogging() {
-           window.addEventListener('message', function(event) {
-    if (
-        event.data &&
-        event.data.channel === 'form_channel' &&
-        event.data.state === 'submitted'
-    ) {
-        formCompleted = true;
-        if (!document.getElementById('convai-widget-chat')) {
-            const widget = document.createElement('elevenlabs-convai');
-            widget.setAttribute('agent-id', 'agent_6301k3m6e0are30s5w4wbkx0zzxv');
-            widget.setAttribute('id', 'convai-widget-chat');
-            console.log("Appending widget after form submitted");
-            document.body.appendChild(widget);
-            console.log("Widget appended, waiting to open...");
-            setTimeout(() => {
-                console.log("Trying to open widget...");
-                if (window.ElevenLabsConvaiWidget && window.ElevenLabsConvaiWidget.open) {
-                    window.ElevenLabsConvaiWidget.open();
-                    console.log("Widget opened!");
-                } else {
-                    console.log("Widget object not ready yet.");
+            window.addEventListener('message', function(event) {
+                // Only log events from the ElevenLabs widget
+                if (!event.origin
+                    || (event.origin !== 'https://elevenlabs.com' && event.origin !== 'https://widget.elevenlabs.com')
+                ) return;
+                const { type, data } = event.data || {};
+                if (type && currentSessionId) {
+                    logConversation({
+                        type,
+                        data,
+                        session_id: currentSessionId,
+                        timestamp: new Date().toISOString()
+                    });
                 }
-            }, 2000);
-        } else {
-            if (window.ElevenLabsConvaiWidget && window.ElevenLabsConvaiWidget.open) {
-                window.ElevenLabsConvaiWidget.open();
-                console.log("Widget already appended, opened again!");
-            }
+            });
         }
-        initializeConversationLogging();
-    }
-});
+        window.addEventListener('load', initializeSession);
+        // Show and open floating AI chat widget after form submit, and start logging
+        window.addEventListener('message', function(event) {
+            if (
+                event.data &&
+                event.data.channel === 'form_channel' &&
+                event.data.state === 'submitted'
+            ) {
+                formCompleted = true;
+                // Only insert the widget once!
+                if (!document.getElementById('convai-widget-chat')) {
+                    const widget = document.createElement('elevenlabs-convai');
+                    widget.setAttribute('agent-id', 'agent_6301k3m6e0are30s5w4wbkx0zzxv');
+                    widget.setAttribute('id', 'convai-widget-chat');
+                    document.body.appendChild(widget);
+                    // Make sure the widget fully loads, then call open()
+                    setTimeout(() => {
+                        if (window.ElevenLabsConvaiWidget && window.ElevenLabsConvaiWidget.open) {
+                            window.ElevenLabsConvaiWidget.open();
+                        }
+                    }, 1200); // longer delay ensures widget is ready
+                } else {
+                    // If already present, just open it
+                    if (window.ElevenLabsConvaiWidget && window.ElevenLabsConvaiWidget.open) {
+                        window.ElevenLabsConvaiWidget.open();
+                    }
+                }
+                initializeConversationLogging();
+            }
+        });
     </script>
 </body>
 </html>
