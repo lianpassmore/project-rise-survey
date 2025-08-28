@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trurivu - Your Voice in Feedback Systems</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Lexend Deca', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #f1eada, #fef3c7);
+            color: #3a2f26;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .header {
+            text-align: center; margin-bottom: 30px; padding: 30px;
+            background: linear-gradient(135deg, #f1eada, #cec1a8);
+            border-radius: 16px; box-shadow: 0 8px 24px rgba(88, 71, 56, 0.15);
+            border-left: 6px solid #b59e7d;
+        }
+        .header h1 {
+            font-family: 'Playfair Display', serif; font-size: 2.5rem;
+            font-weight: 600; color: #584738; margin-bottom: 10px;
+        }
+        .header .subtitle {
+            font-family: 'Playfair Display', serif; font-size: 1.2rem;
+            color: #aaa396; font-style: italic; margin-bottom: 15px;
+        }
+        .cultural-note {
+            background: linear-gradient(135deg, #fef3c7, #f1eada);
+            padding: 20px; border-radius: 12px; border-left: 4px solid #b59e7d;
+            font-size: 0.9rem; color: #584738;
+        }
+        .form-section {
+            background: white; padding: 30px; border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(88, 71, 56, 0.1);
+            border-left: 6px solid #b59e7d;
+        }
+        .form-intro { margin-bottom: 25px; font-size: 1.1rem; color: #584738; }
+        .form-intro h2 {
+            font-family: 'Playfair Display', serif; font-size: 1.6rem;
+            color: #584738; margin-bottom: 15px;
+        }
+        .session-info {
+            background: #e8f5e8; padding: 10px 15px; border-radius: 8px;
+            margin-bottom: 20px; font-size: 0.9rem; color: #2d5a2d;
+        }
+        .loading { text-align: center; color: #584738; font-style: italic; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Trurivu</h1>
+            <div class="subtitle">Ka whakatipu i nga reo katoa (Growing all voices)</div>
+            <div class="cultural-note">
+                <strong>He aha tenei kaupapa? (What's this about?)</strong><br>
+                We're building Trurivu - a feedback system designed with 
+                Maori and Pasifika values to serve our communities with mana and cultural safety.
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <div class="form-intro">
+                <h2>Your Voice in Feedback Systems</h2>
+                <p>Kia ora! Before we have our korero, please share some background information.</p>
+                <p><em>Your data belongs to you - complete sovereignty and the right to withdraw at any time.</em></p>
+            </div>
+            
+            <div id="session-info" class="session-info" style="display: none;">
+                Session ID: <span id="session-display"></span>
+            </div>
+            
+            <div id="loading" class="loading">Setting up your session...</div>
+            
+            <div id="form-container" style="display: none;">
+                <div style="width:100%;height:600px;" 
+                     data-fillout-id="9VrrQUs5DCus" 
+                     data-fillout-embed-type="standard" 
+                     data-fillout-inherit-parameters 
+                     data-fillout-dynamic-resize></div>
+                <script src="https://server.fillout.com/embed/v1/"></script>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSessionId = null;
+
+        async function createSession() {
+            try {
+                const response = await fetch('/api/create-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                if (!response.ok) throw new Error('API failed');
+                const data = await response.json();
+                return data.sessionId;
+            } catch (error) {
+                return 'RISE_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            }
+        }
+
+        async function initializeSession() {
+            try {
+                let sessionId = localStorage.getItem('trurivu_session_id');
+                if (!sessionId) {
+                    sessionId = await createSession();
+                    localStorage.setItem('trurivu_session_id', sessionId);
+                }
+
+                currentSessionId = sessionId;
+                
+                document.getElementById('session-display').textContent = sessionId.substring(0, 20) + '...';
+                document.getElementById('session-info').style.display = 'block';
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('form-container').style.display = 'block';
+                
+                const url = new URL(window.location);
+                url.searchParams.set('session_id', sessionId);
+                window.history.replaceState({}, '', url);
+                
+            } catch (error) {
+                document.getElementById('loading').textContent = 'Error setting up session. Please refresh.';
+            }
+        }
+
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.type === 'fillout:form_completed') {
+                if (currentSessionId) {
+                    window.location.href = `interview.html?session=${currentSessionId}`;
+                }
+            }
+        });
+
+        window.addEventListener('load', initializeSession);
+    </script>
+</body>
+</html>
