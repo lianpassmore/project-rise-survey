@@ -3,109 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trurivu - Your Voice in Feedback Systems</title>
+    <title>Project Rise Digital Survey</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; margin: 0; padding: 0; }
         body { 
             font-family: 'Lexend Deca', system-ui, -apple-system, sans-serif;
             background: linear-gradient(135deg, #f1eada, #fef3c7);
             color: #3a2f26; line-height: 1.6; min-height: 100vh;
         }
-        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px 20px 20px; }
         .header {
-            text-align: center; margin-bottom: 30px; padding: 30px;
-            background: linear-gradient(135deg, #f1eada, #cec1a8);
-            border-radius: 16px; box-shadow: 0 8px 24px rgba(88, 71, 56, 0.15);
-            border-left: 6px solid #b59e7d;
+            background: none; box-shadow: none; border-left: none;
+            padding: 32px 0 10px 0; margin-bottom: 0; text-align: center;
         }
         .header h1 {
-            font-family: 'Playfair Display', serif; font-size: 2.5rem;
-            font-weight: 600; color: #584738; margin-bottom: 10px;
+            font-family: 'Playfair Display', serif; font-size: 2.6rem;
+            font-weight: 700; margin-bottom: 7px; color: #584738; letter-spacing: -1px;
         }
-        .header .subtitle {
-            font-family: 'Playfair Display', serif; font-size: 1.2rem;
-            color: #aaa396; font-style: italic; margin-bottom: 15px;
+        .header .tagline {
+            font-family: 'Lexend Deca', system-ui, -apple-system, sans-serif;
+            font-size: 1.25rem; color: #584738; font-weight: 400; margin-bottom: 26px;
         }
-        .cultural-note {
-            background: linear-gradient(135deg, #fef3c7, #f1eada);
-            padding: 20px; border-radius: 12px; border-left: 4px solid #b59e7d;
-            font-size: 0.9rem; color: #584738;
+        .header h2 {
+            font-family: 'Playfair Display', serif; font-size: 1.5rem;
+            font-weight: 600; margin-bottom: 12px; color: #584738;
+        }
+        .header .section-desc {
+            font-family: 'Lexend Deca', system-ui, -apple-system, sans-serif;
+            font-size: 1.05rem; color: #3a2f26; margin-bottom: 0;
         }
         .form-section {
             background: white; padding: 30px; border-radius: 16px;
             box-shadow: 0 8px 24px rgba(88, 71, 56, 0.1);
-            border-left: 6px solid #b59e7d;
-        }
-        .form-intro { margin-bottom: 25px; font-size: 1.1rem; color: #584738; }
-        .form-intro h2 {
-            font-family: 'Playfair Display', serif; font-size: 1.6rem;
-            color: #584738; margin-bottom: 15px;
+            border-left: 6px solid #b59e7d; margin-top: 24px;
         }
         .session-info {
             background: #e8f5e8; padding: 10px 15px; border-radius: 8px;
-            margin-bottom: 20px; font-size: 0.9rem; color: #2d5a2d;
+            margin-bottom: 20px; font-size: 0.93rem; color: #2d5a2d;
         }
         .loading { text-align: center; color: #584738; font-style: italic; }
-        
-        /* Overlay Styles */
-        .overlay-backdrop {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.7); z-index: 1000;
-        }
-        .overlay-content {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 90%; max-width: 800px; height: 80%;
-            background: white; border-radius: 16px; z-index: 1001;
-            display: flex; flex-direction: column;
-        }
-        .overlay-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 20px; border-bottom: 1px solid #e0e0e0;
-        }
-        .overlay-header h2 {
-            font-family: 'Playfair Display', serif; color: #584738; margin: 0;
-        }
-        .close-btn {
-            background: none; border: none; font-size: 24px; cursor: pointer;
-            color: #584738; padding: 0; width: 30px; height: 30px;
-        }
-        #elevenlabs-container {
-            flex: 1; margin: 20px;
-        }
-        elevenlabs-convai {
-            display: block; width: 100%; height: 100%;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Trurivu</h1>
-            <div class="subtitle">Ka whakatipu i nga reo katoa (Growing all voices)</div>
-            <div class="cultural-note">
-                <strong>He aha tenei kaupapa? (What's this about?)</strong><br>
-                We're building Trurivu - a feedback system designed with 
-                Maori and Pasifika values to serve our communities with mana and cultural safety.
+            <h1>Project Rise Digital Survey</h1>
+            <div class="tagline">Real Insights for Systemic Empowerment</div>
+            <h2>Part 1: The Essentials</h2>
+            <div class="section-desc">
+                Kia ora, before you meet my Digital Voice aka AI Agent, there are a few things I need to share.
+                Think of it as our digital whakawhanaunatanga – getting to know each other.
             </div>
         </div>
-        
-        <!-- Initial Form Section -->
         <div class="form-section" id="form-section">
-            <div class="form-intro">
-                <h2>Your Voice in Feedback Systems</h2>
-                <p>Kia ora! Before we have our korero, please share some background information.</p>
-                <p><em>Your data belongs to you - complete sovereignty and the right to withdraw at any time.</em></p>
-            </div>
-            
             <div id="session-info" class="session-info" style="display: none;">
                 Session ID: <span id="session-display"></span>
             </div>
-            
             <div id="loading" class="loading">Setting up your session...</div>
-            
             <div id="form-container" style="display: none;">
                 <div style="width:100%;height:600px;" 
                      data-fillout-id="9VrrQUs5DCus" 
@@ -113,58 +70,11 @@
                      data-fillout-inherit-parameters 
                      data-fillout-dynamic-resize></div>
                 <script src="https://server.fillout.com/embed/v1/"></script>
-                
-                <div style="text-align: center; margin-top: 30px; padding: 25px; background: linear-gradient(135deg, #fef3c7, #f1eada); border-radius: 12px; border: 2px solid #b59e7d;">
-                    <h3 style="color: #584738; margin-bottom: 15px; font-family: 'Playfair Display', serif;">Finished with the Demographics?</h3>
-                    <p style="margin-bottom: 20px; color: #584738; font-size: 0.95rem;">Only proceed if you've completed ALL demographic questions above and submitted the form.</p>
-                    <button onclick="manualFormComplete()" 
-                            style="background: #584738; color: white; padding: 15px 30px; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; font-weight: 500;">
-                        I've Completed Demographics - Continue to Korero
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Conversation Starter (hidden until form complete) -->
-        <div id="conversation-starter" class="form-section" style="display: none;">
-            <div style="text-align: center; padding: 40px;">
-                <h2 style="font-family: 'Playfair Display', serif; color: #584738; margin-bottom: 20px;">
-                    Nga mihi! Demographics Complete
-                </h2>
-                <p style="margin-bottom: 30px; color: #584738;">
-                    Your responses have been recorded. Ready for your korero with Lian's Digital Voice?
-                </p>
-                <button onclick="startConversation()" 
-                        style="background: #584738; color: white; padding: 15px 30px; border: none; 
-                               border-radius: 8px; font-size: 1.1rem; cursor: pointer; 
-                               font-family: 'Lexend Deca', sans-serif;">
-                    Start Korero with Lian
-                </button>
-                <p style="margin-top: 15px; font-size: 0.9rem; color: #aaa396;">
-                    The conversation will open in an overlay. You can close it anytime.
-                </p>
             </div>
         </div>
     </div>
-
-    <!-- ElevenLabs Overlay -->
-    <div id="conversation-overlay" style="display: none;">
-        <div class="overlay-backdrop" onclick="closeConversation()"></div>
-        <div class="overlay-content">
-            <div class="overlay-header">
-                <h2>Korero with Lian</h2>
-                <button onclick="closeConversation()" class="close-btn">×</button>
-            </div>
-            <div class="session-info">
-                <strong>Session Connected:</strong> Your responses are linked to this conversation.
-                <br><small>Session ID: <span id="overlay-session-display"></span></small>
-            </div>
-            <div id="elevenlabs-container">
-                <!-- ElevenLabs widget will be inserted here -->
-            </div>
-        </div>
-    </div>
-
+    <!-- ElevenLabs chat widget embed script -->
+    <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
     <script>
         let formCompleted = false;
         let currentSessionId = null;
@@ -191,127 +101,22 @@
                     sessionId = await createSession();
                     localStorage.setItem('trurivu_session_id', sessionId);
                 }
-
                 currentSessionId = sessionId;
-                
                 document.getElementById('session-display').textContent = sessionId.substring(0, 20) + '...';
                 document.getElementById('session-info').style.display = 'block';
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('form-container').style.display = 'block';
-                
-                // IMPORTANT: Ensure conversation starter stays hidden until form completion
-                document.getElementById('conversation-starter').style.display = 'none';
-                
+
                 const url = new URL(window.location);
                 url.searchParams.set('session_id', sessionId);
                 window.history.replaceState({}, '', url);
-                
             } catch (error) {
                 console.error('Session initialization failed:', error);
                 document.getElementById('loading').textContent = 'Error setting up session. Please refresh.';
             }
         }
 
-        window.addEventListener('message', function(event) {
-            console.log('Received message:', event.data);
-            
-            if (event.data && (
-                event.data.type === 'fillout:form_completed' ||
-                event.data.type === 'fillout:submitted' ||
-                event.data.type === 'form_completed' ||
-                event.data.type === 'submitted'
-            )) {
-                console.log('Form completion detected with type:', event.data.type);
-                formCompleted = true;
-                showConversationStarter();
-            }
-        });
-
-        function manualFormComplete() {
-            const confirmed = confirm("Have you completed all the demographic questions above? Click OK to proceed to the conversation, or Cancel to continue filling out the form.");
-            
-            if (confirmed) {
-                console.log('Manual form completion confirmed');
-                formCompleted = true;
-                showConversationStarter();
-            }
-        }
-
-        function showConversationStarter() {
-            console.log('Showing conversation starter');
-            document.getElementById('form-section').style.display = 'none';
-            document.getElementById('conversation-starter').style.display = 'block';
-        }
-
-        function startConversation() {
-            if (!formCompleted) {
-                alert('Please complete the demographics form first.');
-                return;
-            }
-            
-            if (!currentSessionId) {
-                alert('Session not ready. Please refresh and try again.');
-                return;
-            }
-            
-            document.getElementById('overlay-session-display').textContent = currentSessionId.substring(0, 20) + '...';
-            document.getElementById('conversation-overlay').style.display = 'block';
-            
-            loadElevenLabsWidget();
-            initializeConversationLogging();
-        }
-
-        function loadElevenLabsWidget() {
-            const container = document.getElementById('elevenlabs-container');
-            container.innerHTML = `
-                <elevenlabs-convai 
-                    agent-id="agent_6301k3m6e0are30s5w4wbkx0zzxv"
-                    id="convai-widget-overlay">
-                </elevenlabs-convai>
-            `;
-            
-            if (!document.getElementById('elevenlabs-script')) {
-                const script = document.createElement('script');
-                script.id = 'elevenlabs-script';
-                script.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
-                script.async = true;
-                document.head.appendChild(script);
-            }
-        }
-
-        function closeConversation() {
-            document.getElementById('conversation-overlay').style.display = 'none';
-        }
-
-        function initializeConversationLogging() {
-            if (!formCompleted || !currentSessionId) {
-                console.error('Cannot start conversation logging - form not completed or no session');
-                return;
-            }
-            
-            logConversation({
-                type: 'conversation_started',
-                session_id: currentSessionId,
-                timestamp: new Date().toISOString()
-            });
-            
-            window.addEventListener('message', function(event) {
-                if (event.origin !== 'https://elevenlabs.com' && 
-                    event.origin !== 'https://widget.elevenlabs.com') return;
-                
-                const { type, data } = event.data;
-                
-                if (type && currentSessionId && formCompleted) {
-                    logConversation({
-                        type,
-                        data,
-                        session_id: currentSessionId,
-                        timestamp: new Date().toISOString()
-                    });
-                }
-            });
-        }
-
+        // LOGGING CONVERSATION EVENTS
         async function logConversation(conversationData) {
             try {
                 await fetch('/api/log-conversation', {
@@ -328,7 +133,52 @@
             }
         }
 
+        // Integrate conversation event tracking from the ElevenLabs widget
+        function initializeConversationLogging() {
+            window.addEventListener('message', function(event) {
+                // Only log events from the ElevenLabs widget
+                if (!event.origin
+                    || (event.origin !== 'https://elevenlabs.com' && event.origin !== 'https://widget.elevenlabs.com')
+                ) return;
+
+                const { type, data } = event.data || {};
+                if (type && currentSessionId) {
+                    logConversation({
+                        type,
+                        data,
+                        session_id: currentSessionId,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+            });
+        }
+
         window.addEventListener('load', initializeSession);
+
+        // Show and open floating AI chat widget after form submit, and start logging
+        window.addEventListener('message', function(event) {
+            if (
+                event.data &&
+                event.data.channel === 'form_channel' &&
+                event.data.state === 'submitted'
+            ) {
+                formCompleted = true;
+                // Only insert the widget once!
+                if (!document.getElementById('convai-widget-chat')) {
+                    const widget = document.createElement('elevenlabs-convai');
+                    widget.setAttribute('agent-id', 'agent_6301k3m6e0are30s5w4wbkx0zzxv');
+                    widget.setAttribute('id', 'convai-widget-chat');
+                    document.body.appendChild(widget);
+                }
+                // Open the widget automatically, just like a chat pop-up
+                setTimeout(() => {
+                    if (window.ElevenLabsConvaiWidget && window.ElevenLabsConvaiWidget.open) {
+                        window.ElevenLabsConvaiWidget.open();
+                    }
+                }, 500);
+                initializeConversationLogging();
+            }
+        });
     </script>
 </body>
 </html>
