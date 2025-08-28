@@ -72,8 +72,11 @@
             background: none; border: none; font-size: 24px; cursor: pointer;
             color: #584738; padding: 0; width: 30px; height: 30px;
         }
-        #convai-widget-overlay {
+        #elevenlabs-container {
             flex: 1; margin: 20px;
+        }
+        elevenlabs-convai {
+            display: block; width: 100%; height: 100%;
         }
     </style>
 </head>
@@ -110,6 +113,15 @@
                      data-fillout-inherit-parameters 
                      data-fillout-dynamic-resize></div>
                 <script src="https://server.fillout.com/embed/v1/"></script>
+                
+                <!-- Manual completion button -->
+                <div style="text-align: center; margin-top: 20px; padding: 20px; background: #f0f0f0; border-radius: 8px;">
+                    <p style="margin-bottom: 10px; color: #584738;">After completing the form above, click here to proceed:</p>
+                    <button onclick="manualFormComplete()" 
+                            style="background: #584738; color: white; padding: 12px 24px; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer;">
+                        I've Completed the Form - Continue to Korero
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -147,11 +159,9 @@
                 <strong>Session Connected:</strong> Your responses are linked to this conversation.
                 <br><small>Session ID: <span id="overlay-session-display"></span></small>
             </div>
-            <elevenlabs-convai 
-                agent-id="agent_6301k3m6e0are30s5w4wbkx0zzxv"
-                id="convai-widget-overlay">
-            </elevenlabs-convai>
-            <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script>
+            <div id="elevenlabs-container">
+                <!-- ElevenLabs widget will be inserted here -->
+            </div>
         </div>
     </div>
 
@@ -170,6 +180,7 @@
                 const data = await response.json();
                 return data.sessionId;
             } catch (error) {
+                console.error('Session creation failed:', error);
                 return 'RISE_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             }
         }
@@ -196,19 +207,36 @@
                 window.history.replaceState({}, '', url);
                 
             } catch (error) {
+                console.error('Session initialization failed:', error);
                 document.getElementById('loading').textContent = 'Error setting up session. Please refresh.';
             }
         }
 
-        // Handle form completion
+        // Handle form completion (automatic detection)
         window.addEventListener('message', function(event) {
-            if (event.data && event.data.type === 'fillout:form_completed') {
+            console.log('Received message:', event.data);
+            
+            if (event.data && (
+                event.data.type === 'fillout:form_completed' ||
+                event.data.type === 'fillout:submitted' ||
+                event.data.type === 'form_completed' ||
+                event.data.type === 'submitted'
+            )) {
+                console.log('Form completion detected with type:', event.data.type);
                 formCompleted = true;
                 showConversationStarter();
             }
         });
 
+        // Manual form completion
+        function manualFormComplete() {
+            console.log('Manual form completion triggered');
+            formCompleted = true;
+            showConversationStarter();
+        }
+
         function showConversationStarter() {
+            console.log('Showing conversation starter');
             document.getElementById('form-section').style.display = 'none';
             document.getElementById('conversation-starter').style.display = 'block';
         }
@@ -227,7 +255,28 @@
             document.getElementById('overlay-session-display').textContent = currentSessionId.substring(0, 20) + '...';
             document.getElementById('conversation-overlay').style.display = 'block';
             
+            // Load ElevenLabs widget dynamically to avoid policy issues
+            loadElevenLabsWidget();
             initializeConversationLogging();
+        }
+
+        function loadElevenLabsWidget() {
+            const container = document.getElementById('elevenlabs-container');
+            container.innerHTML = `
+                <elevenlabs-convai 
+                    agent-id="agent_6301k3m6e0are30s5w4wbkx0zzxv"
+                    id="convai-widget-overlay">
+                </elevenlabs-convai>
+            `;
+            
+            // Load script dynamically
+            if (!document.getElementById('elevenlabs-script')) {
+                const script = document.createElement('script');
+                script.id = 'elevenlabs-script';
+                script.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
+                script.async = true;
+                document.head.appendChild(script);
+            }
         }
 
         function closeConversation() {
@@ -236,7 +285,10 @@
 
         // Conversation logging
         function initializeConversationLogging() {
-            if (!formCompleted || !currentSessionId) return;
+            if (!formCompleted || !currentSessionId) {
+                console.error('Cannot start conversation logging - form not completed or no session');
+                return;
+            }
             
             logConversation({
                 type: 'conversation_started',
