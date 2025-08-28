@@ -38,11 +38,7 @@
             margin-bottom: 20px; font-size: 0.93rem; color: #2d5a2d;
         }
         .loading { text-align: center; color: #584738; font-style: italic; }
-        .debug-info {
-            background: #fff3cd; padding: 10px 15px; border-radius: 8px;
-            margin-bottom: 20px; font-size: 0.85rem; color: #856404;
-            display: none;
-        }
+
         .completion-message {
             background: #d4edda; padding: 20px; border-radius: 8px;
             margin-top: 20px; color: #155724; text-align: center;
@@ -59,9 +55,6 @@
       <div class="form-section" id="form-section">
         <div id="session-info" class="session-info" style="display: none;">
           Session ID: <span id="session-display"></span>
-        </div>
-        <div id="debug-info" class="debug-info">
-          Debug: Waiting for form completion...
         </div>
         <div id="loading" class="loading">Setting up your session...</div>
         <div id="form-container" style="display: none;">
@@ -93,18 +86,6 @@
     <script>
         let formCompleted = false;
         let currentSessionId = null;
-        let debugMode = true; // Enable debug logging
-
-        function debugLog(message, data) {
-            if (debugMode) {
-                console.log('[TrueReview Debug]', message, data || '');
-                const debugEl = document.getElementById('debug-info');
-                if (debugEl) {
-                    debugEl.style.display = 'block';
-                    debugEl.innerHTML += '<br>' + new Date().toLocaleTimeString() + ': ' + message;
-                }
-            }
-        }
 
         async function createSession() {
             try {
@@ -136,8 +117,6 @@
                 const url = new URL(window.location);
                 url.searchParams.set('session_id', sessionId);
                 window.history.replaceState({}, '', url);
-                
-                debugLog('Session initialized: ' + sessionId);
             } catch (error) {
                 console.error('Session initialization failed:', error);
                 document.getElementById('loading').textContent = 'Error setting up session. Please refresh.';
@@ -163,16 +142,11 @@
 
         // Function to inject and open the AI widget
         function injectAndOpenWidget() {
-            debugLog('Attempting to inject widget...');
-            
             if (!document.getElementById('convai-widget-chat')) {
                 const widget = document.createElement('elevenlabs-convai');
                 widget.setAttribute('agent-id', 'agent_6301k3m6e0are30s5w4wbkx0zzxv');
                 widget.setAttribute('id', 'convai-widget-chat');
                 document.body.appendChild(widget);
-                debugLog('Widget element created and added to page');
-            } else {
-                debugLog('Widget already exists');
             }
             
             // Show completion message
@@ -184,17 +158,12 @@
             
             function tryOpenWidget() {
                 attempts++;
-                debugLog(`Opening widget attempt ${attempts}...`);
                 
                 if (window.ElevenLabsConvaiWidget && window.ElevenLabsConvaiWidget.open) {
                     window.ElevenLabsConvaiWidget.open();
-                    debugLog("Widget opened successfully!");
                     return true;
                 } else if (attempts < maxAttempts) {
-                    debugLog("Widget not ready, trying again in 500ms...");
                     setTimeout(tryOpenWidget, 500);
-                } else {
-                    debugLog("Failed to open widget after " + maxAttempts + " attempts");
                 }
             }
             
@@ -203,32 +172,24 @@
 
         // Function to wait for widget to be ready
         function pollForWidget() {
-            debugLog('Checking if widget is ready...');
             if (window.customElements && window.customElements.get('elevenlabs-convai')) {
-                debugLog('Widget custom element is ready');
                 injectAndOpenWidget();
             } else {
-                debugLog('Widget not ready, checking again...');
                 setTimeout(pollForWidget, 200);
             }
         }
 
         // Function to handle form completion
         function handleFormCompletion(source) {
-            if (formCompleted) {
-                debugLog('Form already marked as completed, ignoring duplicate event');
-                return;
-            }
+            if (formCompleted) return;
             
             formCompleted = true;
-            debugLog('Form completion detected from: ' + source);
             pollForWidget();
             initializeConversationLogging();
         }
 
         // Integrate conversation event tracking from the ElevenLabs widget
         function initializeConversationLogging() {
-            debugLog('Initializing conversation logging...');
             window.addEventListener('message', function(event) {
                 // Only log events from the ElevenLabs widget
                 if (!event.origin
@@ -236,7 +197,6 @@
                 ) return;
                 const { type, data } = event.data || {};
                 if (type && currentSessionId) {
-                    debugLog('Logging conversation event: ' + type);
                     logConversation({
                         type,
                         data,
@@ -257,8 +217,6 @@
             )) {
                 return; // Ignore these to prevent permission errors
             }
-
-            debugLog('Received message from: ' + (event.origin || 'unknown origin'), event.data);
             
             // Only process messages from Fillout
             if (!event.origin || !event.origin.includes('fillout.com')) {
@@ -271,7 +229,6 @@
                 
                 // Original format you were checking for
                 if (data.channel === 'form_channel' && data.state === 'submitted') {
-                    debugLog('Form completion detected - original format');
                     handleFormCompletion('original format');
                     return;
                 }
@@ -284,7 +241,6 @@
                     data.action === 'submit' ||
                     (data.fillout && data.fillout.submitted) ||
                     (data.form && data.form.submitted)) {
-                    debugLog('Form completion detected - common format');
                     handleFormCompletion('common format');
                     return;
                 }
@@ -292,7 +248,6 @@
                 // Check if message contains 'submit' or 'complete' keywords
                 const messageStr = JSON.stringify(data).toLowerCase();
                 if (messageStr.includes('submit') && !messageStr.includes('button')) {
-                    debugLog('Form completion detected - keyword match: ' + messageStr);
                     handleFormCompletion('keyword match');
                     return;
                 }
@@ -302,7 +257,6 @@
         // Additional fallback - check for form completion via DOM changes (more targeted)
         let formCheckInterval;
         function startFormMonitoring() {
-            debugLog('Starting form completion monitoring...');
             formCheckInterval = setInterval(() => {
                 // Look for Fillout-specific completion indicators
                 const filloutContainer = document.querySelector('[data-fillout-id]');
@@ -320,7 +274,6 @@
                     const containerText = filloutContainer.textContent || '';
                     for (let indicator of completionIndicators) {
                         if (containerText.toLowerCase().includes(indicator)) {
-                            debugLog('Form completion detected - DOM text: ' + indicator);
                             clearInterval(formCheckInterval);
                             handleFormCompletion('DOM monitoring - ' + indicator);
                             return;
@@ -331,27 +284,12 @@
                 // Alternative: Check for URL changes that might indicate completion
                 const currentUrl = window.location.href;
                 if (currentUrl.includes('submitted') || currentUrl.includes('complete') || currentUrl.includes('thank')) {
-                    debugLog('Form completion detected - URL change');
                     clearInterval(formCheckInterval);
                     handleFormCompletion('URL monitoring');
                     return;
                 }
             }, 1500);
         }
-
-        // Manual trigger for testing - add a button after 10 seconds
-        setTimeout(() => {
-            if (!formCompleted) {
-                const testButton = document.createElement('button');
-                testButton.textContent = 'Test Widget (Debug)';
-                testButton.style.cssText = 'position: fixed; top: 10px; right: 10px; z-index: 9999; padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;';
-                testButton.onclick = () => {
-                    debugLog('Manual trigger activated');
-                    handleFormCompletion('manual trigger');
-                };
-                document.body.appendChild(testButton);
-            }
-        }, 10000);
 
         window.addEventListener('load', () => {
             initializeSession();
