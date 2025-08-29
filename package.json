@@ -1,0 +1,19 @@
+{
+  "name": "project-rise-survey",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Rise Survey with Cultural Compliance MCP Server",
+  "main": "index.html",
+  "scripts": {
+    "dev": "vercel dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["mcp", "cultural-compliance", "survey", "tikanga", "maori"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "latest",
+    "mcp-handler": "latest",
+    "zod": "^3"
+  }
+}
