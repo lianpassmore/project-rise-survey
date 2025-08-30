@@ -3,57 +3,43 @@ import { z } from "zod";
 
 class ParticipantConsentTools {
   constructor() {
-    this.consentTypes = { /* ...copy your full consentTypes object here... */ };
-    this.reciprocityFramework = { /* ...copy your full reciprocityFramework object here... */ };
-    this.withdrawalProcesses = { /* ...copy your full withdrawalProcesses object here... */ };
+    // All your consentTypes, etc. copied from your latest version
+    this.consentTypes = { /* ...full consentTypes as above... */ };
+    this.consentRecords = new Map();
+    this.consentHistory = new Map();
   }
 
-  // Simple logic examples—expand or connect to actual databases as needed!
-  async registerParticipantConsent(args) {
+  // Example implementations:
+  async initiateConsentProcess(args) {
+    // Your initiation logic
     return {
       content: [{
         type: "text",
-        text: `Consent registered for ${args.participant_id} with types: ${args.consent_types.join(", ")}`
+        text: `Consent process initiated for ${args.participantId}, type: ${args.consentType}.`
       }]
     };
   }
-  async validateConsentStatus(args) {
+  async verifyOngoingConsent(args) {
     return {
       content: [{
         type: "text",
-        text: `Consent for ${args.participant_id} (activity: ${args.activity}) is valid.`
+        text: `Verified ongoing consent for ${args.participantId} - status: ${args.consentStatus}.`
       }]
     };
   }
-  async processConsentRenewal(args) {
+  async processConsentWithdrawal(args) {
     return {
       content: [{
         type: "text",
-        text: `Consent renewal processed for ${args.participant_id} (type: ${args.renewal_type}).`
+        text: `Consent withdrawal (${args.withdrawalType}) processing for ${args.participantId}.`
       }]
     };
   }
-  async initiateWithdrawalProcess(args) {
+  async validateCulturalCompliance(args) {
     return {
       content: [{
         type: "text",
-        text: `Withdrawal process "${args.withdrawal_type}" started for ${args.participant_id}.`
-      }]
-    };
-  }
-  async manageCollectiveConsent(args) {
-    return {
-      content: [{
-        type: "text",
-        text: `Collective consent for ${args.community_group} handled: ${args.decision_type}.`
-      }]
-    };
-  }
-  async trackReciprocityObligations(args) {
-    return {
-      content: [{
-        type: "text",
-        text: `Reciprocity tracked for ${args.participant_id} - contributed: ${args.value_contributed}, due: ${args.reciprocity_due}.`
+        text: `Cultural compliance validated for ${args.participantId}, type: ${args.validationType}.`
       }]
     };
   }
@@ -61,168 +47,141 @@ class ParticipantConsentTools {
     return {
       content: [{
         type: "text",
-        text: `Consent report (scope: ${args.report_scope}, audience: ${args.audience}) generated.`
+        text: `Consent report generated: ${args.reportType}.`
       }]
     };
   }
-  async culturalConsentCheck(args) {
-    return {
-      content: [{
-        type: "text",
-        text: `Cultural consent check performed for ${args.community_involved} context.`
-      }]
-    };
-  }
+
+  // Resource helpers
+  getConsentTemplates() { /* ...copy from your code... */ }
+  getCulturalProtocols() { /* ...copy from your code... */ }
+  getConsentTracking() { /* ...copy from your code... */ }
+  getWithdrawalProcedures() { /* ...copy from your code... */ }
 }
 
 const tools = new ParticipantConsentTools();
 
 const handler = createMcpHandler(
   (server) => {
+    // Tools
     server.tool(
-      "register_participant_consent",
-      "Register new participant consent with cultural protocols",
+      "initiate_consent_process",
+      "Begin culturally-informed consent process for new participant",
       {
-        participant_id: z.string(),
-        consent_types: z.array(z.enum(["informed", "ongoing", "collective", "cultural", "dynamic"])),
-        cultural_context: z.string(),
-        reciprocity_preferences: z.array(z.string()).optional(),
-        family_consultation: z.boolean().default(false),
-        cultural_supervisor_present: z.boolean().default(false),
-        language_preference: z.string().optional(),
-        accessibility_needs: z.array(z.string()).optional()
+        participantId: z.string(),
+        consentType: z.enum(["informed", "ongoing", "collective", "cultural"]),
+        culturalContext: z.object({
+          iwi: z.string().optional(),
+          culturalAdvisor: z.string().optional(),
+          specialConsiderations: z.array(z.string()).optional()
+        }).optional()
       },
-      (args) => tools.registerParticipantConsent(args)
+      (args) => tools.initiateConsentProcess(args)
     );
-
     server.tool(
-      "validate_consent_status",
-      "Check current consent status for a participant or activity",
+      "verify_ongoing_consent",
+      "Check and update ongoing consent status",
       {
-        participant_id: z.string(),
-        activity: z.string(),
-        consent_type_required: z.enum(["informed", "ongoing", "collective", "cultural", "dynamic"]).optional(),
-        check_expiry: z.boolean().default(true)
+        participantId: z.string(),
+        checkInType: z.enum(["weekly", "bi-weekly", "monthly", "milestone"]),
+        consentStatus: z.enum(["maintained", "modified", "withdrawn", "pending"])
       },
-      (args) => tools.validateConsentStatus(args)
+      (args) => tools.verifyOngoingConsent(args)
     );
-
     server.tool(
-      "process_consent_renewal",
-      "Handle consent renewal with cultural check-ins",
+      "process_consent_withdrawal",
+      "Handle consent withdrawal with cultural protocols",
       {
-        participant_id: z.string(),
-        renewal_type: z.enum(["routine", "project_evolution", "cultural_review"]),
-        changes_requested: z.array(z.string()).optional(),
-        cultural_check_in: z.boolean().default(true),
-        reciprocity_update: z.boolean().default(false)
+        participantId: z.string(),
+        withdrawalType: z.enum(["complete", "partial", "data-retention", "cultural-only"]),
+        dataHandling: z.object({
+          deleteExisting: z.boolean().optional(),
+          anonymizeData: z.boolean().optional(),
+          culturalDataProtection: z.boolean().optional()
+        }).optional()
       },
-      (args) => tools.processConsentRenewal(args)
+      (args) => tools.processConsentWithdrawal(args)
     );
-
     server.tool(
-      "initiate_withdrawal_process",
-      "Begin culturally appropriate withdrawal process",
+      "validate_cultural_compliance",
+      "Validate consent process against cultural protocols",
       {
-        participant_id: z.string(),
-        withdrawal_type: z.enum(["immediate", "graceful", "collective"]),
-        reason: z.string().optional(),
-        data_scope: z.string(),
-        support_needed: z.boolean().default(false),
-        maintain_relationship: z.boolean().default(true)
+        participantId: z.string(),
+        validationType: z.enum([
+          "tikanga-compliance",
+          "cultural-authority",
+          "collective-impact",
+          "sacred-knowledge"
+        ]),
+        validatorId: z.string()
       },
-      (args) => tools.initiateWithdrawalProcess(args)
+      (args) => tools.validateCulturalCompliance(args)
     );
-
-    server.tool(
-      "manage_collective_consent",
-      "Handle community-level consent decisions",
-      {
-        community_group: z.string(),
-        decision_type: z.enum(["initial_consent", "consent_modification", "collective_withdrawal"]),
-        hui_date: z.string(),
-        participants_present: z.array(z.string()).optional(),
-        cultural_authority_approval: z.boolean(),
-        consensus_reached: z.boolean(),
-        decision_summary: z.string()
-      },
-      (args) => tools.manageCollectiveConsent(args)
-    );
-
-    server.tool(
-      "track_reciprocity_obligations",
-      "Track and manage reciprocity commitments",
-      {
-        participant_id: z.string(),
-        engagement_level: z.enum(["individual", "collective", "cultural"]),
-        value_contributed: z.string(),
-        reciprocity_due: z.string(),
-        preferred_timing: z.string().optional(),
-        cultural_appropriateness: z.boolean().default(true)
-      },
-      (args) => tools.trackReciprocityObligations(args)
-    );
-
     server.tool(
       "generate_consent_report",
-      "Generate consent status report for community or oversight",
+      "Generate consent compliance and cultural alignment report",
       {
-        report_scope: z.enum(["individual", "community", "project_wide"]),
-        participant_id: z.string().optional(),
-        include_cultural_analysis: z.boolean().default(true),
-        include_reciprocity_status: z.boolean().default(true),
-        audience: z.enum(["participant", "community", "cultural_supervisor", "ethics_committee"])
+        reportType: z.enum([
+          "individual",
+          "collective",
+          "cultural-compliance",
+          "withdrawal-summary"
+        ]),
+        timeRange: z.object({
+          startDate: z.string().optional(),
+          endDate: z.string().optional()
+        }).optional(),
+        includeMetadata: z.boolean().default(false)
       },
       (args) => tools.generateConsentReport(args)
     );
 
-    server.tool(
-      "cultural_consent_check",
-      "Perform cultural appropriateness check for consent processes",
-      {
-        proposed_process: z.string(),
-        cultural_context: z.string(),
-        community_involved: z.string(),
-        tikanga_considerations: z.array(z.string()).optional(),
-        power_dynamics: z.string().optional()
-      },
-      (args) => tools.culturalConsentCheck(args)
-    );
-
-    // Resource endpoints
+    // Resources
     server.resource(
-      "consent://types",
-      "Consent Types Framework",
-      "Culturally-informed consent types and requirements",
+      "consent://templates",
+      "Consent Form Templates",
+      "Culturally-informed consent form templates",
       async () => ({
         contents: [{
-          uri: "consent://types",
+          uri: "consent://templates",
           mimeType: "application/json",
-          text: JSON.stringify(tools.consentTypes, null, 2)
+          text: JSON.stringify(tools.getConsentTemplates(), null, 2)
         }]
       })
     );
     server.resource(
-      "consent://reciprocity",
-      "Reciprocity Framework",
-      "Framework for managing reciprocal relationships",
+      "consent://protocols",
+      "Cultural Consent Protocols",
+      "Indigenous methodology consent protocols",
       async () => ({
         contents: [{
-          uri: "consent://reciprocity",
+          uri: "consent://protocols",
           mimeType: "application/json",
-          text: JSON.stringify(tools.reciprocityFramework, null, 2)
+          text: JSON.stringify(tools.getCulturalProtocols(), null, 2)
+        }]
+      })
+    );
+    server.resource(
+      "consent://tracking",
+      "Consent Status Tracking",
+      "Active consent records and status monitoring",
+      async () => ({
+        contents: [{
+          uri: "consent://tracking",
+          mimeType: "application/json",
+          text: JSON.stringify(tools.getConsentTracking(), null, 2)
         }]
       })
     );
     server.resource(
       "consent://withdrawal",
-      "Withdrawal Processes",
-      "Culturally appropriate withdrawal procedures",
+      "Withdrawal Procedures",
+      "Cultural and legal withdrawal processes",
       async () => ({
         contents: [{
           uri: "consent://withdrawal",
           mimeType: "application/json",
-          text: JSON.stringify(tools.withdrawalProcesses, null, 2)
+          text: JSON.stringify(tools.getWithdrawalProcedures(), null, 2)
         }]
       })
     );
@@ -231,4 +190,3 @@ const handler = createMcpHandler(
 );
 
 export { handler as GET, handler as POST, handler as DELETE };
-
