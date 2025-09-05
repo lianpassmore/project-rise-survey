@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         html, body { height: 100%; margin: 0; padding: 0; }
-        body { 
+        body {
             font-family: 'Lexend Deca', system-ui, -apple-system, sans-serif;
             background: linear-gradient(135deg, #f1eada, #fef3c7);
             color: #3a2f26; line-height: 1.6; min-height: 100vh;
@@ -38,6 +38,10 @@
             margin-bottom: 20px; font-size: 0.93rem; color: #2d5a2d;
         }
         .loading { text-align: center; color: #584738; font-style: italic; }
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -52,30 +56,22 @@
         </div>
         <div class="loading" id="loading">Setting up your session...</div>
         <div id="form-container" style="display: none;">
-          <div style="width:100%;height:600px;" 
-               data-fillout-id="9VrrQUs5DCus" 
-               data-fillout-embed-type="standard" 
-               data-fillout-inherit-parameters 
-               data-fillout-dynamic-resize></div>
+            <!-- Main form embedded inline -->
+            <div data-fillout-id="kjVrJXdH8Yus" data-fillout-embed-type="standard" data-fillout-dynamic-resize data-fillout-inherit-parameters></div>
+            
+            <!-- Extra Fillout form as popup -->
+            <div class="button-container">
+                <div data-fillout-id="vhcWW87iwius" data-fillout-embed-type="popup" data-fillout-dynamic-resize data-fillout-button-color="#0693E3" data-fillout-inherit-parameters data-fillout-popup-size="medium"></div>
+            </div>
         </div>
       </div>
     </div>
-    <!-- Place Fillout script outside (after) the embed -->
-    <script defer src="https://server.fillout.com/embed/v1/"></script>
-    <!-- ElevenLabs chat widget embed script - load after Fillout -->
-    <script>
-        // Load ElevenLabs widget after a delay to avoid conflicts
-        setTimeout(() => {
-            const script = document.createElement('script');
-            script.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
-            script.type = 'text/javascript';
-            script.async = true;
-            document.head.appendChild(script);
-        }, 2000);
-    </script>
+    
     <script>
         let formCompleted = false;
         let currentSessionId = null;
+        
+        // Session management functions
         async function createSession() {
             try {
                 const response = await fetch('/api/create-session', {
@@ -90,6 +86,7 @@
                 return 'RISE_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
             }
         }
+        
         async function initializeSession() {
             try {
                 let sessionId = localStorage.getItem('trurivu_session_id');
@@ -102,6 +99,7 @@
                 document.getElementById('session-info').style.display = 'block';
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('form-container').style.display = 'block';
+                
                 const url = new URL(window.location);
                 url.searchParams.set('session_id', sessionId);
                 window.history.replaceState({}, '', url);
@@ -110,7 +108,8 @@
                 document.getElementById('loading').textContent = 'Error setting up session. Please refresh.';
             }
         }
-        // LOGGING CONVERSATION EVENTS
+        
+        // Conversation logging
         async function logConversation(conversationData) {
             try {
                 await fetch('/api/log-conversation', {
@@ -126,7 +125,8 @@
                 console.error('Error logging conversation:', error);
             }
         }
-        // Function to inject and open the AI widget
+        
+        // AI widget functions
         function injectAndOpenWidget() {
             if (!document.getElementById('convai-widget-chat')) {
                 const widget = document.createElement('elevenlabs-convai');
@@ -135,7 +135,6 @@
                 document.body.appendChild(widget);
             }
             
-            // Try to open the widget with multiple attempts
             let attempts = 0;
             const maxAttempts = 10;
             
@@ -152,7 +151,7 @@
             
             setTimeout(tryOpenWidget, 1000);
         }
-        // Function to wait for widget to be ready
+        
         function pollForWidget() {
             if (window.customElements && window.customElements.get('elevenlabs-convai')) {
                 injectAndOpenWidget();
@@ -160,7 +159,7 @@
                 setTimeout(pollForWidget, 200);
             }
         }
-        // Function to handle form completion
+        
         function handleFormCompletion(source) {
             if (formCompleted) return;
             
@@ -168,13 +167,13 @@
             pollForWidget();
             initializeConversationLogging();
         }
-        // Integrate conversation event tracking from the ElevenLabs widget
+        
         function initializeConversationLogging() {
             window.addEventListener('message', function(event) {
-                // Only log events from the ElevenLabs widget
                 if (!event.origin
                     || (event.origin !== 'https://elevenlabs.com' && event.origin !== 'https://widget.elevenlabs.com')
                 ) return;
+                
                 const { type, data } = event.data || {};
                 if (type && currentSessionId) {
                     logConversation({
@@ -186,15 +185,16 @@
                 }
             }, { passive: true });
         }
-        // Enhanced message listener with origin filtering
+        
+        // Enhanced message listener for form completion
         window.addEventListener('message', function(event) {
-            // Filter out problematic origins that cause permission errors
+            // Filter out problematic origins
             if (event.origin && (
                 event.origin.includes('youtube.com') ||
                 event.origin.includes('google.com') ||
                 event.origin.includes('googlevideo.com')
             )) {
-                return; // Ignore these to prevent permission errors
+                return;
             }
             
             // Only process messages from Fillout
@@ -202,11 +202,10 @@
                 return;
             }
             
-            // Check for various possible Fillout completion formats
             if (event.data) {
                 const data = event.data;
                 
-                // Original format you were checking for
+                // Original format
                 if (data.channel === 'form_channel' && data.state === 'submitted') {
                     handleFormCompletion('original format');
                     return;
@@ -224,7 +223,7 @@
                     return;
                 }
                 
-                // Check if message contains 'submit' or 'complete' keywords
+                // Check for keywords
                 const messageStr = JSON.stringify(data).toLowerCase();
                 if (messageStr.includes('submit') && !messageStr.includes('button')) {
                     handleFormCompletion('keyword match');
@@ -232,14 +231,13 @@
                 }
             }
         }, { passive: true });
-        // Additional fallback - check for form completion via DOM changes (more targeted)
+        
+        // Fallback monitoring
         let formCheckInterval;
         function startFormMonitoring() {
             formCheckInterval = setInterval(() => {
-                // Look for Fillout-specific completion indicators
                 const filloutContainer = document.querySelector('[data-fillout-id]');
                 if (filloutContainer) {
-                    // Look for thank you messages or completion screens within the Fillout iframe context
                     const completionIndicators = [
                         'thank you',
                         'submitted',
@@ -248,7 +246,6 @@
                         'received'
                     ];
                     
-                    // Check if the form container has changed to show completion
                     const containerText = filloutContainer.textContent || '';
                     for (let indicator of completionIndicators) {
                         if (containerText.toLowerCase().includes(indicator)) {
@@ -259,7 +256,6 @@
                     }
                 }
                 
-                // Alternative: Check for URL changes that might indicate completion
                 const currentUrl = window.location.href;
                 if (currentUrl.includes('submitted') || currentUrl.includes('complete') || currentUrl.includes('thank')) {
                     clearInterval(formCheckInterval);
@@ -268,10 +264,23 @@
                 }
             }, 1500);
         }
+        
+        // ElevenLabs widget loading
+        setTimeout(() => {
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
+            script.type = 'text/javascript';
+            script.async = true;
+            document.head.appendChild(script);
+        }, 2000);
+        
         window.addEventListener('load', () => {
             initializeSession();
             startFormMonitoring();
         });
     </script>
+    
+    <!-- Load Fillout embed script -->
+    <script src="https://server.fillout.com/embed/v1/"></script>
 </body>
 </html>
