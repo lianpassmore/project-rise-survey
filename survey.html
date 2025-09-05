@@ -13,7 +13,7 @@
     
     <style>
         html, body { height: 100%; margin: 0; padding: 0; }
-        body { 
+        body {
             font-family: 'Lexend Deca', system-ui, -apple-system, sans-serif;
             background: linear-gradient(135deg, #f1eada, #fef3c7);
             color: #3a2f26; line-height: 1.6; min-height: 100vh;
@@ -34,129 +34,122 @@
         .form-section {
             background: white; padding: 30px; border-radius: 16px;
             box-shadow: 0 8px 24px rgba(88, 71, 56, 0.1);
-            border-left: 6px solid #b59e7d; margin-top: 24px;
+            margin-bottom: 24px;
+        }
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem; font-weight: 700;
+            color: #584738; margin-bottom: 20px;
+            text-align: center;
+        }
+        .info-text {
+            font-size: 1rem; color: #666; margin-bottom: 20px;
+            line-height: 1.6; text-align: center;
         }
         .session-info {
-            background: #e8f5e8; padding: 10px 15px; border-radius: 8px;
-            margin-bottom: 20px; font-size: 0.93rem; color: #2d5a2d;
+            background: #f8f9fa; padding: 12px 20px;
+            border-radius: 8px; margin-bottom: 20px;
+            text-align: center; border: 1px solid #e9ecef;
         }
-        .loading { text-align: center; color: #584738; font-style: italic; }
-        .instructions {
-            margin-bottom: 30px;
+        .session-info strong {
+            color: #584738; font-weight: 600;
         }
-        .instructions h2 {
-            color: #495057;
-            margin-top: 0;
-            margin-bottom: 15px;
-            font-family: 'Playfair Display', serif;
+        #session-display {
+            font-family: monospace; color: #007bff;
+            font-size: 0.9em; word-break: break-all;
         }
-        .instructions ul {
-            color: #6c757d;
+        .survey-embed {
+            width: 100%; min-height: 600px;
+            border: none; border-radius: 12px;
+            background: white;
         }
-        .survey-container {
-            margin-top: 20px;
+        .loading {
+            text-align: center; padding: 40px;
+            color: #666; font-size: 1.1rem;
         }
         .footer {
-            margin-top: 30px;
-            padding: 20px;
-            text-align: center;
-            color: #6c757d;
-            background: #f8f9fa;
-            border-radius: 8px;
+            text-align: center; margin-top: 30px;
+            padding: 20px; color: #666;
+            font-size: 0.9rem;
         }
+        .footer a {
+            color: #584738; text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Responsive design */
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2em;
-            }
+            .container { padding: 20px 15px; }
+            .header h1 { font-size: 2.2rem; }
+            .header .tagline { font-size: 1.1rem; }
+            .form-section { padding: 20px; }
         }
     </style>
+    
+    <!-- Fillout Embed Script -->
+    <script src="https://server.fillout.com/embed/v1/"></script>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Project Rise Survey</h1>
-            <div class="tagline">Cultural Feedback Platform for Systemic Empowerment</div>
+            <h1>Project Rise Digital Survey</h1>
+            <div class="tagline">Help us understand your digital habits and preferences</div>
         </div>
         
-        <div class="form-section" id="form-section">
-            <div class="session-info" id="session-info" style="display: none;">
-                Session ID: <span id="session-display"></span>
+        <div class="form-section">
+            <div class="section-title">Survey Information</div>
+            <div class="info-text">
+                This survey will take approximately 10-15 minutes to complete. Your responses are completely anonymous and will help us improve our digital services.
             </div>
             
-            <div class="instructions">
-                <h2>Welcome to Our Survey</h2>
-                <p>Thank you for participating in Project Rise. Your feedback is valuable in helping us build culturally responsive and inclusive systems.</p>
-                
-                <h3>Instructions:</h3>
-                <ul>
-                    <li>Please take your time to thoughtfully complete each section</li>
-                    <li>All responses are confidential and will be used for research purposes only</li>
-                    <li>You can save your progress and return to complete the survey later</li>
-                    <li>If you have any technical issues, please contact our support team</li>
-                </ul>
+            <div class="session-info">
+                <strong>Session ID:</strong> <span id="session-display">Loading...</span>
             </div>
             
-            <div class="loading" id="loading">Setting up your session...</div>
-            
-            <div class="survey-container" id="survey-container" style="display: none;">
-                <!-- Fillout.com embedded form -->
-                <div 
-                    data-fillout-id="vhcWW87iwius" 
-                    data-fillout-embed-type="standard" 
-                    data-fillout-inherit-parameters 
-                    data-fillout-dynamic-resize
-                    style="width:100%;height:600px;">
-                </div>
+            <div id="loading" class="loading">
+                Loading survey...
             </div>
             
-            <div class="footer">
-                <p>Project Rise - Building inclusive digital futures through cultural governance</p>
-                <p>For technical support or questions about this survey, please contact: <a href="mailto:support@project-rise.org">support@project-rise.org</a></p>
+            <div id="survey-container" style="display: none;">
+                <div data-fillout-id="mQKKZRVhPGus" data-fillout-embed-type="standard" data-fillout-inherit-parameters data-fillout-dynamic-resize></div>
             </div>
+        </div>
+        
+        <div class="footer">
+            <p>If you experience any technical issues, please contact our support team at <a href="mailto:support@trurivu.com">support@trurivu.com</a></p>
+            <p>© 2024 Project Rise - Empowering communities through digital innovation</p>
         </div>
     </div>
     
-    <!-- Fillout script -->
-    <script defer src="https://server.fillout.com/embed/v1/"></script>
-    
     <script>
+        // Session management
         let currentSessionId = null;
         
-        // Function to get session ID from URL parameters or localStorage
+        // Function to generate a session ID
+        function generateSessionId() {
+            return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+        
+        // Function to get or create session ID
         function getSessionId() {
-            // First, check URL parameters
-            const urlParams = new URLSearchParams(window.location.search);
-            let sessionId = urlParams.get('session_id');
-            
-            // If not in URL, check localStorage
+            let sessionId = localStorage.getItem('trurivu_session_id');
             if (!sessionId) {
-                sessionId = localStorage.getItem('trurivu_session_id');
-            }
-            
-            // If still no session ID, generate a new one
-            if (!sessionId) {
-                sessionId = 'SURVEY_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                sessionId = generateSessionId();
                 localStorage.setItem('trurivu_session_id', sessionId);
             }
-            
             return sessionId;
         }
         
-        // Function to initialize the survey with session handling
+        // Initialize survey
         function initializeSurvey() {
             try {
+                // Get or generate session ID
                 currentSessionId = getSessionId();
                 
-                // Display session info
+                // Display session ID (truncated for security)
                 document.getElementById('session-display').textContent = currentSessionId.substring(0, 20) + '...';
-                document.getElementById('session-info').style.display = 'block';
-                
-                // Update URL with session ID if not already present
-                const url = new URL(window.location);
-                if (!url.searchParams.has('session_id')) {
-                    url.searchParams.set('session_id', currentSessionId);
-                    window.history.replaceState({}, '', url);
-                }
                 
                 // Pass session ID to Fillout form via URL parameters
                 const filloutContainer = document.querySelector('[data-fillout-id]');
