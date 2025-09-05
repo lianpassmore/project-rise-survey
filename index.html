@@ -84,14 +84,14 @@
             <div class="loading" id="loading">Setting up your session...</div>
             <div id="form-container" style="display: none;">
                 <!-- Main form embedded inline -->
-                <div data-fillout-id="9VrrQUs5DCus" data-fillout-embed-type="standard" data-fillout-dynamic-resize data-fillout-inherit-parameters></div>
+                <div data-fillout-id="9VrrQUs5DCus" data-fillout-embed-type="standard" data-fillout-inherit-parameters data-fillout-dynamic-resize></div>
             </div>
         </div>
         
         <div class="part-two-section">
-            <button id="part-two-button" class="part-two-button" onclick="showPartTwoForm()">Complete Part Two as a Form</button>
-            <div id="part-two-form" class="form-section hidden">
-                <div data-fillout-id="vhcWW87iwius" data-fillout-embed-type="standard" data-fillout-dynamic-resize data-fillout-inherit-parameters></div>
+            <button class="part-two-button hidden" id="part-two-button" onclick="showPartTwoForm()">Complete Part Two as a Form</button>
+            <div class="form-section hidden" id="part-two-form">
+                <div data-fillout-id="vhcWW87iwius" data-fillout-embed-type="standard" data-fillout-inherit-parameters data-fillout-dynamic-resize></div>
             </div>
         </div>
     </div>
@@ -202,6 +202,13 @@
             if (formCompleted) return;
             
             formCompleted = true;
+            
+            // Show the Part Two button when form is completed
+            const partTwoButton = document.getElementById('part-two-button');
+            if (partTwoButton) {
+                partTwoButton.classList.remove('hidden');
+            }
+            
             pollForWidget();
             initializeConversationLogging();
         }
