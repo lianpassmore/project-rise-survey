@@ -3,73 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Rise Survey - Cultural Feedback Platform</title>
+    <meta http-equiv="Permissions-Policy" content="accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(self), payment=(), usb=()">
+    <title>Project Rise Digital Survey</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lexend+Deca:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background-color: #f8f9fa;
-            color: #333;
+        html, body { height: 100%; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Lexend Deca', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #f1eada, #fef3c7);
+            color: #3a2f26; line-height: 1.6; min-height: 100vh;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
+        .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px 20px 20px; }
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px 20px;
-            text-align: center;
+            background: none; box-shadow: none; border-left: none;
+            padding: 32px 0 10px 0; margin-bottom: 0; text-align: center;
         }
         .header h1 {
-            margin: 0 0 10px 0;
-            font-size: 2.5em;
-            font-weight: 300;
+            font-family: 'Playfair Display', serif; font-size: 2.6rem;
+            font-weight: 700; margin-bottom: 7px; color: #584738; letter-spacing: -1px;
         }
-        .header p {
-            margin: 0;
-            font-size: 1.2em;
-            opacity: 0.9;
+        .header .tagline {
+            font-family: 'Lexend Deca', system-ui, -apple-system, sans-serif;
+            font-size: 1.25rem; color: #584738; font-weight: 400; margin-bottom: 26px;
         }
+        .form-section {
+            background: white; padding: 30px; border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(88, 71, 56, 0.1);
+            border-left: 6px solid #b59e7d; margin-top: 24px;
+        }
+        .session-info {
+            background: #e8f5e8; padding: 10px 15px; border-radius: 8px;
+            margin-bottom: 20px; font-size: 0.93rem; color: #2d5a2d;
+        }
+        .loading { text-align: center; color: #584738; font-style: italic; }
         .instructions {
-            padding: 30px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 30px;
         }
         .instructions h2 {
             color: #495057;
             margin-top: 0;
+            margin-bottom: 15px;
+            font-family: 'Playfair Display', serif;
         }
         .instructions ul {
             color: #6c757d;
         }
         .survey-container {
-            padding: 20px;
-        }
-        .survey-frame {
-            width: 100%;
-            height: 800px;
-            border: none;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-top: 20px;
         }
         .footer {
+            margin-top: 30px;
             padding: 20px;
             text-align: center;
             color: #6c757d;
             background: #f8f9fa;
-            border-top: 1px solid #e9ecef;
+            border-radius: 8px;
         }
         @media (max-width: 768px) {
-            .survey-frame {
-                height: 600px;
-            }
             .header h1 {
                 font-size: 2em;
             }
@@ -80,47 +75,138 @@
     <div class="container">
         <div class="header">
             <h1>Project Rise Survey</h1>
-            <p>Digital Survey Platform for Culturally Governed Feedback Systems</p>
+            <div class="tagline">Cultural Feedback Platform for Systemic Empowerment</div>
         </div>
         
-        <div class="instructions">
-            <h2>Welcome to Our Survey</h2>
-            <p>Thank you for participating in Project Rise. Your feedback is valuable in helping us build culturally responsive and inclusive systems.</p>
+        <div class="form-section" id="form-section">
+            <div class="session-info" id="session-info" style="display: none;">
+                Session ID: <span id="session-display"></span>
+            </div>
             
-            <h3>Instructions:</h3>
-            <ul>
-                <li>Please take your time to thoughtfully complete each section</li>
-                <li>All responses are confidential and will be used for research purposes only</li>
-                <li>You can save your progress and return to complete the survey later</li>
-                <li>If you have any technical issues, please contact our support team</li>
-            </ul>
-        </div>
-        
-        <div class="survey-container">
-            <!-- Fillout.com embedded form -->
-            <div style="width:100%;height:500px;" data-fillout-id="vhcWW87iwius" data-fillout-embed-type="standard" data-fillout-inherit-parameters data-fillout-dynamic-resize></div><script src="https://server.fillout.com/embed/v1/"></script>
-        </div>
-        
-        <div class="footer">
-            <p>Project Rise - Building inclusive digital futures through cultural governance</p>
-            <p>For technical support or questions about this survey, please contact: <a href="mailto:support@project-rise.org">support@project-rise.org</a></p>
+            <div class="instructions">
+                <h2>Welcome to Our Survey</h2>
+                <p>Thank you for participating in Project Rise. Your feedback is valuable in helping us build culturally responsive and inclusive systems.</p>
+                
+                <h3>Instructions:</h3>
+                <ul>
+                    <li>Please take your time to thoughtfully complete each section</li>
+                    <li>All responses are confidential and will be used for research purposes only</li>
+                    <li>You can save your progress and return to complete the survey later</li>
+                    <li>If you have any technical issues, please contact our support team</li>
+                </ul>
+            </div>
+            
+            <div class="loading" id="loading">Setting up your session...</div>
+            
+            <div class="survey-container" id="survey-container" style="display: none;">
+                <!-- Fillout.com embedded form -->
+                <div 
+                    data-fillout-id="vhcWW87iwius" 
+                    data-fillout-embed-type="standard" 
+                    data-fillout-inherit-parameters 
+                    data-fillout-dynamic-resize
+                    style="width:100%;height:600px;">
+                </div>
+            </div>
+            
+            <div class="footer">
+                <p>Project Rise - Building inclusive digital futures through cultural governance</p>
+                <p>For technical support or questions about this survey, please contact: <a href="mailto:support@project-rise.org">support@project-rise.org</a></p>
+            </div>
         </div>
     </div>
     
+    <!-- Fillout script -->
+    <script defer src="https://server.fillout.com/embed/v1/"></script>
+    
     <script>
-        // Optional: Add any additional JavaScript for form interactions
-        // Ensure the iframe is fully loaded
+        let currentSessionId = null;
+        
+        // Function to get session ID from URL parameters or localStorage
+        function getSessionId() {
+            // First, check URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            let sessionId = urlParams.get('session_id');
+            
+            // If not in URL, check localStorage
+            if (!sessionId) {
+                sessionId = localStorage.getItem('trurivu_session_id');
+            }
+            
+            // If still no session ID, generate a new one
+            if (!sessionId) {
+                sessionId = 'SURVEY_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('trurivu_session_id', sessionId);
+            }
+            
+            return sessionId;
+        }
+        
+        // Function to initialize the survey with session handling
+        function initializeSurvey() {
+            try {
+                currentSessionId = getSessionId();
+                
+                // Display session info
+                document.getElementById('session-display').textContent = currentSessionId.substring(0, 20) + '...';
+                document.getElementById('session-info').style.display = 'block';
+                
+                // Update URL with session ID if not already present
+                const url = new URL(window.location);
+                if (!url.searchParams.has('session_id')) {
+                    url.searchParams.set('session_id', currentSessionId);
+                    window.history.replaceState({}, '', url);
+                }
+                
+                // Pass session ID to Fillout form via URL parameters
+                const filloutContainer = document.querySelector('[data-fillout-id]');
+                if (filloutContainer) {
+                    // Add session_id as a parameter that Fillout will inherit
+                    filloutContainer.setAttribute('data-fillout-parameters', JSON.stringify({
+                        session_id: currentSessionId
+                    }));
+                }
+                
+                // Hide loading and show survey
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('survey-container').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Survey initialization failed:', error);
+                document.getElementById('loading').textContent = 'Error setting up survey. Please refresh the page.';
+            }
+        }
+        
+        // Function to handle messages from the parent window (index.html)
+        window.addEventListener('message', function(event) {
+            // Handle session ID passed from parent window
+            if (event.data && event.data.type === 'session_id') {
+                const sessionId = event.data.sessionId;
+                if (sessionId) {
+                    localStorage.setItem('trurivu_session_id', sessionId);
+                    currentSessionId = sessionId;
+                    
+                    // Update display
+                    document.getElementById('session-display').textContent = sessionId.substring(0, 20) + '...';
+                    
+                    // Update Fillout parameters
+                    const filloutContainer = document.querySelector('[data-fillout-id]');
+                    if (filloutContainer) {
+                        filloutContainer.setAttribute('data-fillout-parameters', JSON.stringify({
+                            session_id: sessionId
+                        }));
+                    }
+                }
+            }
+        }, { passive: true });
+        
+        // Initialize when page loads
         window.addEventListener('load', function() {
-            console.log('Survey page loaded successfully');
+            // Small delay to ensure Fillout script is loaded
+            setTimeout(initializeSurvey, 500);
         });
         
-        // Handle iframe load events
-        const iframe = document.querySelector('.survey-frame');
-        if (iframe) {
-            iframe.addEventListener('load', function() {
-                console.log('Survey form loaded successfully');
-            });
-        }
+        console.log('Survey page loaded successfully');
     </script>
 </body>
 </html>
