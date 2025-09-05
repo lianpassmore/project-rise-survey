@@ -98,16 +98,7 @@
         
         <div class="survey-container">
             <!-- Fillout.com embedded form -->
-            <!-- Replace the src URL below with your actual fillout.com form URL -->
-            <iframe 
-                class="survey-frame"
-                src="https://forms.fillout.com/t/YOUR_FORM_ID"
-                frameborder="0"
-                marginheight="0"
-                marginwidth="0"
-                allowfullscreen>
-                Loading survey form...
-            </iframe>
+            <div style="width:100%;height:500px;" data-fillout-id="vhcWW87iwius" data-fillout-embed-type="standard" data-fillout-inherit-parameters data-fillout-dynamic-resize></div><script src="https://server.fillout.com/embed/v1/"></script>
         </div>
         
         <div class="footer">
@@ -125,9 +116,11 @@
         
         // Handle iframe load events
         const iframe = document.querySelector('.survey-frame');
-        iframe.addEventListener('load', function() {
-            console.log('Survey form loaded successfully');
-        });
+        if (iframe) {
+            iframe.addEventListener('load', function() {
+                console.log('Survey form loaded successfully');
+            });
+        }
     </script>
 </body>
 </html>
