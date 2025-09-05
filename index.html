@@ -38,33 +38,62 @@
             margin-bottom: 20px; font-size: 0.93rem; color: #2d5a2d;
         }
         .loading { text-align: center; color: #584738; font-style: italic; }
-        .button-container {
-            text-align: center;
-            margin-top: 20px;
+        .part-two-button {
+            background: #b59e7d;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 40px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            transition: background-color 0.3s ease;
+        }
+        .part-two-button:hover {
+            background: #a08968;
+        }
+        .part-two-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .part-two-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e8f5e8;
+        }
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
-      <div class="header">
-        <h1>Project Rise Digital Survey</h1>
-        <div class="tagline">Real Insights for Systemic Empowerment</div>
-      </div>
-      <div class="form-section" id="form-section">
-        <div class="session-info" id="session-info" style="display: none;">
-          Session ID: <span id="session-display"></span>
+        <div class="header">
+            <h1>Project Rise Digital Survey</h1>
+            <div class="tagline">Real Insights for Systemic Empowerment</div>
         </div>
-        <div class="loading" id="loading">Setting up your session...</div>
-        <div id="form-container" style="display: none;">
-            <!-- Main form embedded inline -->
-            <div data-fillout-id="kjVrJXdH8Yus" data-fillout-embed-type="standard" data-fillout-dynamic-resize data-fillout-inherit-parameters></div>
-            
-            <!-- Extra Fillout form as popup -->
-            <div class="button-container">
-                <div data-fillout-id="vhcWW87iwius" data-fillout-embed-type="popup" data-fillout-dynamic-resize data-fillout-button-color="#0693E3" data-fillout-inherit-parameters data-fillout-popup-size="medium"></div>
+        
+        <div class="form-section" id="form-section">
+            <div class="session-info" id="session-info" style="display: none;">
+                Session ID: <span id="session-display"></span>
+            </div>
+            <div class="loading" id="loading">Setting up your session...</div>
+            <div id="form-container" style="display: none;">
+                <!-- Main form embedded inline -->
+                <div data-fillout-id="9VrrQUs5DCus" data-fillout-embed-type="standard" data-fillout-dynamic-resize data-fillout-inherit-parameters></div>
             </div>
         </div>
-      </div>
+        
+        <div class="part-two-section">
+            <button id="part-two-button" class="part-two-button" onclick="showPartTwoForm()">Complete Part Two as a Form</button>
+            <div id="part-two-form" class="form-section hidden">
+                <div data-fillout-id="vhcWW87iwius" data-fillout-embed-type="standard" data-fillout-dynamic-resize data-fillout-inherit-parameters></div>
+            </div>
+        </div>
     </div>
     
     <script>
@@ -107,6 +136,15 @@
                 console.error('Session initialization failed:', error);
                 document.getElementById('loading').textContent = 'Error setting up session. Please refresh.';
             }
+        }
+        
+        // Show Part Two form function
+        function showPartTwoForm() {
+            const button = document.getElementById('part-two-button');
+            const form = document.getElementById('part-two-form');
+            
+            button.classList.add('hidden');
+            form.classList.remove('hidden');
         }
         
         // Conversation logging
