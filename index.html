@@ -3,27 +3,36 @@ let formCompleted = false;
 let currentSessionId = null;
 let conversationEnded = false;
 let debugMode = window.location.search.includes('debug=true');
+// UI debug log throttling
+const debugLogQueue = [];
+let debugLogTimeout;
 
-// Debug logging function
+// Robust debug logging function
 function debugLog(message, data = null) {
     if (debugMode) {
         console.log(`[Trurivu Debug] ${message}`, data || '');
-        const debugEl = document.getElementById('debug-info');
-        if (debugEl) {
-            debugEl.style.display = 'block';
-            debugEl.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
+        debugLogQueue.push(`<div>${new Date().toLocaleTimeString()}: ${message}</div>`);
+        if (!debugLogTimeout) {
+            debugLogTimeout = setTimeout(() => {
+                const debugEl = document.getElementById('debug-info');
+                if (debugEl) {
+                    debugEl.style.display = 'block';
+                    debugEl.innerHTML += debugLogQueue.join('');
+                    debugLogQueue.length = 0;
+                }
+                debugLogTimeout = null;
+            }, 300); // batch writes (adjust as needed)
         }
     }
 }
 
-// Session management functions
+// ... Session management functions
 function getSessionId() {
-    return window.trurivu_session || 
-           localStorage.getItem('trurivu_session') || 
-           sessionStorage.getItem('trurivu_session') ||
-           document.body.getAttribute('data-session-id');
+    return window.trurivu_session ||
+        localStorage.getItem('trurivu_session') ||
+        sessionStorage.getItem('trurivu_session') ||
+        document.body.getAttribute('data-session-id');
 }
-
 function storeSessionId(sessionId) {
     window.trurivu_session = sessionId;
     localStorage.setItem('trurivu_session', sessionId);
@@ -32,52 +41,53 @@ function storeSessionId(sessionId) {
     currentSessionId = sessionId;
     debugLog('Session ID stored', sessionId);
 }
-
 async function createSession() {
     debugLog('Attempting to create session...');
     try {
         const response = await fetch('/api/create-session', {
             method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json' 
-            },
-            body: JSON.stringify({ 
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
                 timestamp: new Date().toISOString(),
                 source: 'trurivu-form',
                 userAgent: navigator.userAgent
             })
         });
-        
+
         if (!response.ok) {
             throw new Error(`API responded with ${response.status}: ${response.statusText}`);
         }
-        
+
         const data = await response.json();
         const sessionId = data.sessionId || data.id;
-        
+
         if (!sessionId) {
             throw new Error('No session ID returned from API');
         }
-        
+
         debugLog('Session created successfully', sessionId);
         return sessionId;
-        
+
     } catch (error) {
         console.error('Session creation failed:', error);
         debugLog('Session creation failed, using fallback', error.message);
-        
-        // Fallback session ID generation
-        const fallbackId = 'RISE_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+        // More secure fallback session ID generation
+        let fallbackId;
+        if (window.crypto && window.crypto.randomUUID) {
+            fallbackId = 'RISE_' + crypto.randomUUID();
+        } else {
+            fallbackId = 'RISE_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
         debugLog('Generated fallback session ID', fallbackId);
         return fallbackId;
     }
 }
-
 async function initializeSession() {
     debugLog('Initializing session...');
     try {
         let sessionId = getSessionId();
-        
+
         if (!sessionId) {
             sessionId = await createSession();
             storeSessionId(sessionId);
@@ -85,61 +95,72 @@ async function initializeSession() {
             debugLog('Using existing session ID', sessionId);
             currentSessionId = sessionId;
         }
-        
-        // Update UI
-        document.getElementById('session-display').textContent = sessionId.substring(0, 20) + '...';
-        document.getElementById('session-info').style.display = 'block';
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('form-container').style.display = 'block';
-        
-        // Add session ID to URL parameters for form inheritance
+
+        if (document.getElementById('session-display'))
+            document.getElementById('session-display').textContent = sessionId.substring(0, 20) + '...';
+        if (document.getElementById('session-info'))
+            document.getElementById('session-info').style.display = 'block';
+        if (document.getElementById('loading'))
+            document.getElementById('loading').style.display = 'none';
+        if (document.getElementById('form-container'))
+            document.getElementById('form-container').style.display = 'block';
+
+        // Add session ID to URL parameters for form inheritance, only if not present
         const url = new URL(window.location);
-        url.searchParams.set('session_id', sessionId);
-        window.history.replaceState({}, '', url);
-        
+        if (url.searchParams.get('session_id') !== sessionId) {
+            url.searchParams.set('session_id', sessionId);
+            window.history.replaceState({}, '', url);
+        }
+
         // Inject session_id into Fillout forms
         injectSessionIdIntoForms(sessionId);
-        
+
         debugLog('Session initialized successfully');
-        
+
     } catch (error) {
         console.error('Session initialization failed:', error);
         debugLog('Session initialization failed', error.message);
-        document.getElementById('loading').textContent = 'Error setting up session. Please refresh.';
+        const loadingEl = document.getElementById('loading');
+        if (loadingEl) loadingEl.textContent = 'Error setting up session. Please refresh.';
     }
 }
 
 // Function to manually inject session_id into Fillout forms
 function injectSessionIdIntoForms(sessionId) {
     debugLog('Injecting session ID into forms', sessionId);
-    
+
     // Wait for Fillout to load, then inject session_id
     setTimeout(() => {
         const forms = document.querySelectorAll('[data-fillout-id]');
         forms.forEach(form => {
             const filloutId = form.getAttribute('data-fillout-id');
             const iframe = form.querySelector('iframe');
-            
+
             if (iframe && iframe.src && !iframe.src.includes('session_id=')) {
+                // CAUTION: Resetting src may reload form state!
                 const newSrc = iframe.src + (iframe.src.includes('?') ? '&' : '?') + `session_id=${sessionId}`;
                 iframe.src = newSrc;
                 debugLog(`Updated form ${filloutId} with session_id`);
             }
         });
     }, 2000);
-    
+
     // Monitor for dynamically loaded forms
-    const observer = new MutationObserver(() => {
+    const observer = new MutationObserver((mutations, obs) => {
         const iframes = document.querySelectorAll('iframe[src*="fillout.com"]');
         iframes.forEach(iframe => {
-            if (!iframe.src.includes('session_id=')) {
+            if (!iframe.src.includes('session_id=') && sessionId) {
                 iframe.src += (iframe.src.includes('?') ? '&' : '?') + `session_id=${sessionId}`;
                 debugLog('Added session_id to dynamically loaded form');
             }
         });
+        // Optionally disconnect observer after initial run, or keep as needed.
     });
-    
+
     observer.observe(document.body, { childList: true, subtree: true });
+
+    // Disconnect MutationObserver after 10 seconds to avoid leaks
+    setTimeout(() => observer.disconnect(), 10000);
 }
 
 // Show Part Two form function
@@ -148,13 +169,13 @@ function showPartTwoForm() {
     const finishButton = document.getElementById('finish-survey-button');
     const form = document.getElementById('part-two-form');
     const sessionId = getSessionId();
-    
+
     debugLog('Showing Part Two form', sessionId);
-    
-    button.classList.add('hidden');
-    finishButton.classList.add('hidden');
-    form.classList.remove('hidden');
-    
+
+    if (button) button.classList.add('hidden');
+    if (finishButton) finishButton.classList.add('hidden');
+    if (form) form.classList.remove('hidden');
+
     // Ensure session ID is in URL for the second form
     const url = new URL(window.location);
     url.searchParams.set('session_id', sessionId);
@@ -164,11 +185,14 @@ function showPartTwoForm() {
 // Finish survey function - lightweight completion tracking via Vercel API
 function finishSurvey() {
     debugLog('Finishing survey');
-    
-    document.getElementById('part-two-button').classList.add('hidden');
-    document.getElementById('finish-survey-button').classList.add('hidden');
-    document.getElementById('completion-message').classList.remove('hidden');
-    
+
+    const partTwoBtn = document.getElementById('part-two-button');
+    if (partTwoBtn) partTwoBtn.classList.add('hidden');
+    const finishBtn = document.getElementById('finish-survey-button');
+    if (finishBtn) finishBtn.classList.add('hidden');
+    const completionMsg = document.getElementById('completion-message');
+    if (completionMsg) completionMsg.classList.remove('hidden');
+
     const sessionId = getSessionId();
     if (sessionId) {
         fetch('/api/survey-completed', {
@@ -192,9 +216,9 @@ function initializeElevenLabs() {
         debugLog('ElevenLabs init failed - no session ID');
         return;
     }
-    
+
     debugLog('Initializing ElevenLabs widget', sessionId);
-    
+
     if (!document.getElementById('convai-widget-chat')) {
         const widget = document.createElement('elevenlabs-convai');
         widget.setAttribute('agent-id', 'agent_6301k3m6e0are30s5w4wbkx0zzxv');
@@ -203,7 +227,7 @@ function initializeElevenLabs() {
         document.body.appendChild(widget);
         debugLog('ElevenLabs widget created and ready');
     }
-    
+
     // Clean up any error messages after widget has had time to load
     setTimeout(() => {
         const errorMessages = document.querySelectorAll('div');
@@ -215,7 +239,6 @@ function initializeElevenLabs() {
         });
     }, 3000); // Longer delay to let widget load first
 }
-
 function pollForWidget() {
     if (window.customElements && window.customElements.get('elevenlabs-convai')) {
         initializeElevenLabs();
@@ -230,26 +253,25 @@ function handleFormCompletion(source, formData = null) {
         debugLog('Form already completed, ignoring duplicate event');
         return;
     }
-    
+
     formCompleted = true;
     debugLog('Form completion detected', source);
-    
+
     // Note: Form data flows Fillout → N8N → Supabase
     // No redundant Vercel API calls needed
     debugLog('Form data will be handled by N8N webhook from Fillout');
-    
+
     // Show the Part Two button
     const partTwoButton = document.getElementById('part-two-button');
     if (partTwoButton) {
         partTwoButton.classList.remove('hidden');
         debugLog('Part Two button shown');
     }
-    
+
     // Initialize ElevenLabs widget (only after form completion)
     pollForWidget();
     initializeConversationLogging();
 }
-
 function showFinishButton() {
     debugLog('Showing finish survey button');
     const finishButton = document.getElementById('finish-survey-button');
@@ -257,30 +279,31 @@ function showFinishButton() {
         finishButton.classList.remove('hidden');
     }
 }
-
 function initializeConversationLogging() {
     debugLog('Initializing conversation logging');
-    
+
     window.addEventListener('message', function(event) {
-        // Only listen to ElevenLabs events
-        if (!event.origin || 
-            (event.origin !== 'https://elevenlabs.com' && 
-             event.origin !== 'https://widget.elevenlabs.com')) {
+        if (
+            !event.origin ||
+            (event.origin !== 'https://elevenlabs.com' &&
+                event.origin !== 'https://widget.elevenlabs.com')
+        ) {
             return;
         }
-        
+
         const { type, data } = event.data || {};
         if (type && currentSessionId) {
             debugLog('Received ElevenLabs event', type);
-            
-            // Check if conversation has ended
-            if (type === 'conversation_ended' || type === 'call_ended' || type === 'widget_closed') {
+
+            if (
+                type === 'conversation_ended' ||
+                type === 'call_ended' ||
+                type === 'widget_closed'
+            ) {
                 conversationEnded = true;
                 showFinishButton();
             }
-            
-            // Note: ElevenLabs sends transcript data directly to N8N webhook
-            // We just log locally for debugging, N8N handles database storage
+
             debugLog('ElevenLabs event logged locally, N8N will handle database storage');
         }
     }, { passive: true });
@@ -296,34 +319,35 @@ window.addEventListener('message', function(event) {
     )) {
         return;
     }
-    
-    // Only process messages from Fillout
+
     if (!event.origin || !event.origin.includes('fillout.com')) {
         return;
     }
-    
+
     if (event.data) {
         const data = event.data;
-        
+
         // More aggressive form completion detection
         if (data.channel === 'form_channel' && data.state === 'submitted') {
             debugLog('Received Fillout completion message (original)', data);
             handleFormCompletion('original format', data.formData);
             return;
         }
-        
-        if (data.type === 'form_submitted' || 
-            data.event === 'submitted' || 
+
+        if (
+            data.type === 'form_submitted' ||
+            data.event === 'submitted' ||
             data.state === 'complete' ||
             data.status === 'submitted' ||
             data.action === 'submit' ||
             (data.fillout && data.fillout.submitted) ||
-            (data.form && data.form.submitted)) {
+            (data.form && data.form.submitted)
+        ) {
             debugLog('Received Fillout completion message (common)', data);
             handleFormCompletion('common format', data);
             return;
         }
-        
+
         // Check for any submit-related messages
         const messageStr = JSON.stringify(data).toLowerCase();
         if (messageStr.includes('submit')) {
@@ -332,11 +356,10 @@ window.addEventListener('message', function(event) {
                 handleFormCompletion('keyword match', data);
                 return;
             }
-            // Still log other submit messages for debugging
             if (debugMode) {
                 debugLog('Received Fillout submit message', data.type || 'unknown');
             }
-        } else if (debugMode && Math.random() < 0.05) { // 5% sampling for non-submit messages
+        } else if (debugMode && Math.random() < 0.05) {
             debugLog('Received Fillout message (sampled)', data.type || 'unknown');
         }
     }
@@ -346,7 +369,7 @@ window.addEventListener('message', function(event) {
 let formCheckInterval;
 function startFormMonitoring() {
     debugLog('Starting form monitoring');
-    
+
     formCheckInterval = setInterval(() => {
         const filloutContainer = document.querySelector('[data-fillout-id]');
         if (filloutContainer) {
@@ -357,7 +380,7 @@ function startFormMonitoring() {
                 'success',
                 'received'
             ];
-            
+
             const containerText = filloutContainer.textContent || '';
             for (let indicator of completionIndicators) {
                 if (containerText.toLowerCase().includes(indicator)) {
@@ -368,7 +391,7 @@ function startFormMonitoring() {
                 }
             }
         }
-        
+
         const currentUrl = window.location.href;
         if (currentUrl.includes('submitted') || currentUrl.includes('complete') || currentUrl.includes('thank')) {
             clearInterval(formCheckInterval);
@@ -377,7 +400,7 @@ function startFormMonitoring() {
             return;
         }
     }, 1500);
-    
+
     // Add manual trigger for testing - remove this after testing
     if (debugMode) {
         setTimeout(() => {
