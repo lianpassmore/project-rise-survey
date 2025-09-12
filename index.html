@@ -1,434 +1,774 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Trurivu Form Demo</title>
-  <style>
-    .hidden { display: none; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Permissions-Policy" content="accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(self), payment=(), usb=()">
+    <title>Project Rise Digital Survey</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        html, body { 
+            height: 100%; 
+            margin: 0; 
+            padding: 0; 
+        }
+        
+        body {
+            font-family: 'Lexend Deca', system-ui, -apple-system, sans-serif;
+            background: #584738;
+            color: #f1eada; 
+            line-height: 1.6; 
+            min-height: 100vh;
+        }
+        
+        .container { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            padding: 40px 20px 20px 20px; 
+        }
+        
+        .header {
+            background: none; 
+            box-shadow: none; 
+            border-left: none;
+            padding: 32px 0 10px 0; 
+            margin-bottom: 0; 
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-family: 'Lexend Deca', system-ui, -apple-system, sans-serif; 
+            font-size: 2.6rem;
+            font-weight: 700; 
+            margin-bottom: 7px; 
+            color: #f1eada; 
+            letter-spacing: -1px;
+        }
+        
+        .header .tagline {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem; 
+            color: #f1eada; 
+            font-weight: 400; 
+            margin-bottom: 26px;
+        }
+        
+        .form-section {
+            background: white; 
+            padding: 30px; 
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            border: 20px solid #b5937d; 
+            margin-top: 24px;
+        }
+        
+        .session-info {
+            background: #f1eada; 
+            padding: 10px 15px; 
+            border-radius: 8px;
+            margin-bottom: 20px; 
+            font-size: 0.93rem; 
+            color: #584738;
+            border: 1px solid #b5937d;
+        }
+        
+        .loading { 
+            text-align: center; 
+            color: #f1eada; 
+            font-style: italic; 
+        }
+        
+        .form-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 30px;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        
+        .part-two-button, .finish-survey-button {
+            font-family: 'Lexend Deca', system-ui, -apple-system, sans-serif;
+            background: #b5937d;
+            color: #f1eada;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            flex-shrink: 0;
+        }
+        
+        .finish-survey-button {
+            background: #8b7355;
+        }
+        
+        .part-two-button:hover {
+            background: #a08968;
+        }
+        
+        .finish-survey-button:hover {
+            background: #6d5940;
+        }
+        
+        .part-two-button:disabled, .finish-survey-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .part-two-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(241, 234, 218, 0.2);
+        }
+        
+        .completion-message {
+            background: rgba(241, 234, 218, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            color: #f1eada;
+            font-weight: 500;
+            border: 1px solid #b5937d;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .debug-info {
+            background: rgba(241, 234, 218, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            font-family: monospace;
+            color: #f1eada;
+            border: 1px solid #b5937d;
+        }
+        
+        /* Mobile responsiveness for buttons */
+        @media (max-width: 768px) {
+            .form-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .part-two-button, .finish-survey-button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div id="debug-info" style="display:none"></div>
-  <div id="session-display"></div>
-  <div id="session-info" style="display:none"></div>
-  <div id="loading">Loading...</div>
-  <div id="form-container" style="display:none"></div>
-  <button id="part-two-button" class="hidden" onclick="showPartTwoForm()">Continue to Part 2</button>
-  <button id="finish-survey-button" class="hidden" onclick="finishSurvey()">Finish Survey</button>
-  <div id="completion-message" class="hidden">Thank you for completing the survey!</div>
-  <div id="part-two-form" class="hidden">
-    <!-- Your second form goes here -->
-  </div>
-  <!-- Example Fillout form iframe container (Uncomment and change src as needed)
-  <div data-fillout-id="demo">
-    <iframe src="https://you.fillout.com/demo" style="width:100%;height:500px;"></iframe>
-  </div>
-  -->
-
-  <script>
-    // --------------------------- TRURIVU LOGIC START ---------------------------
-    let formCompleted = false;
-    let currentSessionId = null;
-    let conversationEnded = false;
-    let debugMode = window.location.search.includes('debug=true');
-    // UI debug log throttling
-    const debugLogQueue = [];
-    let debugLogTimeout;
-
-    function debugLog(message, data = null) {
-      if (debugMode) {
-        console.log(`[Trurivu Debug] ${message}`, data || '');
-        debugLogQueue.push(`<div>${new Date().toLocaleTimeString()}: ${message}</div>`);
-        if (!debugLogTimeout) {
-          debugLogTimeout = setTimeout(() => {
-            const debugEl = document.getElementById('debug-info');
-            if (debugEl) {
-              debugEl.style.display = 'block';
-              debugEl.innerHTML += debugLogQueue.join('');
-              debugLogQueue.length = 0;
+    <div class="container">
+        <div class="header">
+            <h1>Project Rise Digital Survey</h1>
+            <div class="tagline">Real Insights for Systemic Empowerment</div>
+        </div>
+        
+        <div class="form-section" id="form-section">
+            <div class="session-info" id="session-info" style="display: none;">
+                Session ID: <span id="session-display"></span>
+                <div class="debug-info" id="debug-info" style="display: none;"></div>
+            </div>
+            <div class="loading" id="loading">Setting up your session...</div>
+            <div id="form-container" style="display: none;">
+                <!-- Main form embedded inline -->
+                <div data-fillout-id="9VrrQUs5DCus" data-fillout-embed-type="standard" data-fillout-inherit-parameters data-fillout-dynamic-resize></div>
+            </div>
+        </div>
+        
+        <div class="part-two-section">
+            <div class="form-buttons">
+                <button class="part-two-button hidden" id="part-two-button" onclick="showPartTwoForm()">Complete Part Two as a Form</button>
+                <button class="finish-survey-button hidden" id="finish-survey-button" onclick="finishSurvey()">Finish Survey</button>
+            </div>
+            <div class="completion-message hidden" id="completion-message">
+                Thank you for participating in Project Rise! Your feedback has been recorded.
+            </div>
+            <div class="form-section hidden" id="part-two-form">
+                <div data-fillout-id="vhcWW87iwius" data-fillout-embed-type="standard" data-fillout-inherit-parameters data-fillout-dynamic-resize></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Global state management
+        let formCompleted = false;
+        let currentSessionId = null;
+        let conversationLinked = false;
+        let conversationEnded = false;
+        let debugMode = window.location.search.includes('debug=true');
+        
+        // Debug logging function
+        function debugLog(message, data = null) {
+            if (debugMode) {
+                console.log(`[Trurivu Debug] ${message}`, data || '');
+                const debugEl = document.getElementById('debug-info');
+                if (debugEl) {
+                    debugEl.style.display = 'block';
+                    debugEl.innerHTML += `<div>${new Date().toLocaleTimeString()}: ${message}</div>`;
+                }
             }
-            debugLogTimeout = null;
-          }, 300);
         }
-      }
-    }
-    function getSessionId() {
-      return window.trurivu_session ||
-        localStorage.getItem('trurivu_session') ||
-        sessionStorage.getItem('trurivu_session') ||
-        document.body.getAttribute('data-session-id');
-    }
-    function storeSessionId(sessionId) {
-      window.trurivu_session = sessionId;
-      localStorage.setItem('trurivu_session', sessionId);
-      sessionStorage.setItem('trurivu_session', sessionId);
-      document.body.setAttribute('data-session-id', sessionId);
-      currentSessionId = sessionId;
-      debugLog('Session ID stored', sessionId);
-    }
-    async function createSession() {
-      debugLog('Attempting to create session...');
-      try {
-        const response = await fetch('/api/create-session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            timestamp: new Date().toISOString(),
-            source: 'trurivu-form',
-            userAgent: navigator.userAgent
-          })
-        });
-
-        if (!response.ok) {
-          throw new Error(`API responded with ${response.status}: ${response.statusText}`);
+        
+        // Enhanced session management functions
+        function getSessionId() {
+            return window.trurivu_session || 
+                   localStorage.getItem('trurivu_session') || 
+                   sessionStorage.getItem('trurivu_session') ||
+                   document.body.getAttribute('data-session-id');
         }
-
-        const data = await response.json();
-        const sessionId = data.sessionId || data.id;
-
-        if (!sessionId) {
-          throw new Error('No session ID returned from API');
+        
+        function storeSessionId(sessionId) {
+            // Store in multiple places for reliability
+            window.trurivu_session = sessionId;
+            localStorage.setItem('trurivu_session', sessionId);
+            sessionStorage.setItem('trurivu_session', sessionId);
+            document.body.setAttribute('data-session-id', sessionId);
+            currentSessionId = sessionId;
+            debugLog('Session ID stored', sessionId);
         }
-
-        debugLog('Session created successfully', sessionId);
-        return sessionId;
-
-      } catch (error) {
-        console.error('Session creation failed:', error);
-        debugLog('Session creation failed, using fallback', error.message);
-
-        let fallbackId;
-        if (window.crypto && window.crypto.randomUUID) {
-          fallbackId = 'RISE_' + crypto.randomUUID();
-        } else {
-          fallbackId = 'RISE_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        }
-        debugLog('Generated fallback session ID', fallbackId);
-        return fallbackId;
-      }
-    }
-    async function initializeSession() {
-      debugLog('Initializing session...');
-      try {
-        let sessionId = getSessionId();
-
-        if (!sessionId) {
-          sessionId = await createSession();
-          storeSessionId(sessionId);
-        } else {
-          debugLog('Using existing session ID', sessionId);
-          currentSessionId = sessionId;
-        }
-
-        if (document.getElementById('session-display'))
-          document.getElementById('session-display').textContent = sessionId.substring(0, 20) + '...';
-        if (document.getElementById('session-info'))
-          document.getElementById('session-info').style.display = 'block';
-        if (document.getElementById('loading'))
-          document.getElementById('loading').style.display = 'none';
-        if (document.getElementById('form-container'))
-          document.getElementById('form-container').style.display = 'block';
-
-        // Add session ID to URL parameters for form inheritance, only if not present
-        const url = new URL(window.location);
-        if (url.searchParams.get('session_id') !== sessionId) {
-          url.searchParams.set('session_id', sessionId);
-          window.history.replaceState({}, '', url);
-        }
-
-        injectSessionIdIntoForms(sessionId);
-
-        debugLog('Session initialized successfully');
-      } catch (error) {
-        console.error('Session initialization failed:', error);
-        debugLog('Session initialization failed', error.message);
-        const loadingEl = document.getElementById('loading');
-        if (loadingEl) loadingEl.textContent = 'Error setting up session. Please refresh.';
-      }
-    }
-    function injectSessionIdIntoForms(sessionId) {
-      debugLog('Injecting session ID into forms', sessionId);
-      setTimeout(() => {
-        const forms = document.querySelectorAll('[data-fillout-id]');
-        forms.forEach(form => {
-          const filloutId = form.getAttribute('data-fillout-id');
-          const iframe = form.querySelector('iframe');
-          if (iframe && iframe.src && !iframe.src.includes('session_id=')) {
-            const newSrc = iframe.src + (iframe.src.includes('?') ? '&' : '?') + `session_id=${sessionId}`;
-            iframe.src = newSrc;
-            debugLog(`Updated form ${filloutId} with session_id`);
-          }
-        });
-      }, 2000);
-      const observer = new MutationObserver((mutations, obs) => {
-        const iframes = document.querySelectorAll('iframe[src*="fillout.com"]');
-        iframes.forEach(iframe => {
-          if (!iframe.src.includes('session_id=') && sessionId) {
-            iframe.src += (iframe.src.includes('?') ? '&' : '?') + `session_id=${sessionId}`;
-            debugLog('Added session_id to dynamically loaded form');
-          }
-        });
-      });
-      observer.observe(document.body, { childList: true, subtree: true });
-      setTimeout(() => observer.disconnect(), 10000);
-    }
-    function showPartTwoForm() {
-      const button = document.getElementById('part-two-button');
-      const finishButton = document.getElementById('finish-survey-button');
-      const form = document.getElementById('part-two-form');
-      const sessionId = getSessionId();
-
-      debugLog('Showing Part Two form', sessionId);
-
-      if (button) button.classList.add('hidden');
-      if (finishButton) finishButton.classList.add('hidden');
-      if (form) form.classList.remove('hidden');
-
-      const url = new URL(window.location);
-      url.searchParams.set('session_id', sessionId);
-      window.history.replaceState({}, '', url);
-    }
-    function finishSurvey() {
-      debugLog('Finishing survey');
-
-      const partTwoBtn = document.getElementById('part-two-button');
-      if (partTwoBtn) partTwoBtn.classList.add('hidden');
-      const finishBtn = document.getElementById('finish-survey-button');
-      if (finishBtn) finishBtn.classList.add('hidden');
-      const completionMsg = document.getElementById('completion-message');
-      if (completionMsg) completionMsg.classList.remove('hidden');
-
-      const sessionId = getSessionId();
-      if (sessionId) {
-        fetch('/api/survey-completed', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sessionId: sessionId,
-            timestamp: new Date().toISOString(),
-            completionType: 'finish_button'
-          })
-        }).catch(error => {
-          debugLog('Error logging survey completion', error.message);
-        });
-      }
-    }
-    function initializeElevenLabs() {
-      const sessionId = getSessionId();
-      if (!sessionId) {
-        debugLog('ElevenLabs init failed - no session ID');
-        return;
-      }
-
-      debugLog('Initializing ElevenLabs widget', sessionId);
-
-      if (!document.getElementById('convai-widget-chat')) {
-        const widget = document.createElement('elevenlabs-convai');
-        widget.setAttribute('agent-id', 'agent_6301k3m6e0are30s5w4wbkx0zzxv');
-        widget.setAttribute('id', 'convai-widget-chat');
-        widget.setAttribute('data-session-id', sessionId);
-        document.body.appendChild(widget);
-        debugLog('ElevenLabs widget created and ready');
-      }
-
-      setTimeout(() => {
-        const errorMessages = document.querySelectorAll('div');
-        errorMessages.forEach(msg => {
-          if (msg.textContent && msg.textContent.includes('Voice Assistant Not Available')) {
-            msg.remove();
-            debugLog('Removed error message');
-          }
-        });
-      }, 3000);
-    }
-    function pollForWidget() {
-      if (window.customElements && window.customElements.get('elevenlabs-convai')) {
-        initializeElevenLabs();
-      } else {
-        setTimeout(pollForWidget, 200);
-      }
-    }
-    function handleFormCompletion(source, formData = null) {
-      if (formCompleted) {
-        debugLog('Form already completed, ignoring duplicate event');
-        return;
-      }
-      formCompleted = true;
-      debugLog('Form completion detected', source);
-      debugLog('Form data will be handled by N8N webhook from Fillout');
-
-      const partTwoButton = document.getElementById('part-two-button');
-      if (partTwoButton) {
-        partTwoButton.classList.remove('hidden');
-        debugLog('Part Two button shown');
-      }
-      pollForWidget();
-      initializeConversationLogging();
-    }
-    function showFinishButton() {
-      debugLog('Showing finish survey button');
-      const finishButton = document.getElementById('finish-survey-button');
-      if (finishButton && formCompleted) {
-        finishButton.classList.remove('hidden');
-      }
-    }
-    function initializeConversationLogging() {
-      debugLog('Initializing conversation logging');
-
-      window.addEventListener('message', function(event) {
-        if (
-          !event.origin ||
-          (event.origin !== 'https://elevenlabs.com' &&
-            event.origin !== 'https://widget.elevenlabs.com')
-        ) {
-          return;
-        }
-
-        const { type, data } = event.data || {};
-        if (type && currentSessionId) {
-          debugLog('Received ElevenLabs event', type);
-
-          if (
-            type === 'conversation_ended' ||
-            type === 'call_ended' ||
-            type === 'widget_closed'
-          ) {
-            conversationEnded = true;
-            showFinishButton();
-          }
-          debugLog('ElevenLabs event logged locally, N8N will handle database storage');
-        }
-      }, { passive: true });
-    }
-    window.addEventListener('message', function(event) {
-      if (event.origin && (
-        event.origin.includes('youtube.com') ||
-        event.origin.includes('google.com') ||
-        event.origin.includes('googlevideo.com')
-      )) {
-        return;
-      }
-
-      if (!event.origin || !event.origin.includes('fillout.com')) {
-        return;
-      }
-
-      if (event.data) {
-        const data = event.data;
-
-        if (data.channel === 'form_channel' && data.state === 'submitted') {
-          debugLog('Received Fillout completion message (original)', data);
-          handleFormCompletion('original format', data.formData);
-          return;
-        }
-
-        if (
-          data.type === 'form_submitted' ||
-          data.event === 'submitted' ||
-          data.state === 'complete' ||
-          data.status === 'submitted' ||
-          data.action === 'submit' ||
-          (data.fillout && data.fillout.submitted) ||
-          (data.form && data.form.submitted)
-        ) {
-          debugLog('Received Fillout completion message (common)', data);
-          handleFormCompletion('common format', data);
-          return;
-        }
-
-        const messageStr = JSON.stringify(data).toLowerCase();
-        if (messageStr.includes('submit')) {
-          debugLog('Received potential submission message', data);
-          if (messageStr.includes('success') || messageStr.includes('complete') || messageStr.includes('thank')) {
-            handleFormCompletion('keyword match', data);
-            return;
-          }
-          if (debugMode) {
-            debugLog('Received Fillout submit message', data.type || 'unknown');
-          }
-        } else if (debugMode && Math.random() < 0.05) {
-          debugLog('Received Fillout message (sampled)', data.type || 'unknown');
-        }
-      }
-    }, { passive: true });
-    let formCheckInterval;
-    function startFormMonitoring() {
-      debugLog('Starting form monitoring');
-
-      formCheckInterval = setInterval(() => {
-        const filloutContainer = document.querySelector('[data-fillout-id]');
-        if (filloutContainer) {
-          const completionIndicators = [
-            'thank you',
-            'submitted',
-            'complete',
-            'success',
-            'received'
-          ];
-
-          const containerText = filloutContainer.textContent || '';
-          for (let indicator of completionIndicators) {
-            if (containerText.toLowerCase().includes(indicator)) {
-              clearInterval(formCheckInterval);
-              debugLog('Form completion detected via DOM monitoring', indicator);
-              handleFormCompletion('DOM monitoring - ' + indicator);
-              return;
+        
+        async function createSession() {
+            debugLog('Attempting to create session...');
+            try {
+                const response = await fetch('/api/create-session', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({ 
+                        timestamp: new Date().toISOString(),
+                        source: 'trurivu-form',
+                        userAgent: navigator.userAgent
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API responded with ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                const sessionId = data.sessionId || data.id;
+                
+                if (!sessionId) {
+                    throw new Error('No session ID returned from API');
+                }
+                
+                debugLog('Session created successfully', sessionId);
+                return sessionId;
+                
+            } catch (error) {
+                console.error('Session creation failed:', error);
+                debugLog('Session creation failed, using fallback', error.message);
+                
+                // Fallback session ID generation
+                const fallbackId = 'RISE_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                debugLog('Generated fallback session ID', fallbackId);
+                return fallbackId;
             }
-          }
         }
-
-        const currentUrl = window.location.href;
-        if (currentUrl.includes('submitted') || currentUrl.includes('complete') || currentUrl.includes('thank')) {
-          clearInterval(formCheckInterval);
-          debugLog('Form completion detected via URL monitoring');
-          handleFormCompletion('URL monitoring');
-          return;
+        
+        async function initializeSession() {
+            debugLog('Initializing session...');
+            try {
+                let sessionId = getSessionId();
+                
+                if (!sessionId) {
+                    sessionId = await createSession();
+                    storeSessionId(sessionId);
+                } else {
+                    debugLog('Using existing session ID', sessionId);
+                    currentSessionId = sessionId;
+                }
+                
+                // Update UI
+                document.getElementById('session-display').textContent = sessionId.substring(0, 20) + '...';
+                document.getElementById('session-info').style.display = 'block';
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('form-container').style.display = 'block';
+                
+                // Add session ID to URL parameters for form inheritance
+                const url = new URL(window.location);
+                url.searchParams.set('session_id', sessionId);
+                window.history.replaceState({}, '', url);
+                
+                debugLog('Session initialized successfully');
+                
+            } catch (error) {
+                console.error('Session initialization failed:', error);
+                debugLog('Session initialization failed', error.message);
+                document.getElementById('loading').textContent = 'Error setting up session. Please refresh.';
+            }
         }
-      }, 1500);
-
-      if (debugMode) {
+        
+        // Enhanced form completion handling
+        async function submitFormData(formData) {
+            const sessionId = getSessionId();
+            if (!sessionId) {
+                console.error('No session ID available for form submission');
+                return;
+            }
+            
+            debugLog('Submitting form data', { sessionId, hasData: !!formData });
+            
+            try {
+                const response = await fetch('/api/submit-form', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({
+                        sessionId: sessionId,
+                        formData: formData,
+                        timestamp: new Date().toISOString(),
+                        source: 'fillout-form'
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    debugLog('Form data submitted successfully', result);
+                } else {
+                    const errorText = await response.text();
+                    console.error('Form submission failed:', response.status, errorText);
+                    debugLog('Form submission failed', `${response.status}: ${errorText}`);
+                }
+                
+            } catch (error) {
+                console.error('Error submitting form data:', error);
+                debugLog('Form submission error', error.message);
+            }
+        }
+        
+        // Show Part Two form function with session ID passing
+        function showPartTwoForm() {
+            const button = document.getElementById('part-two-button');
+            const finishButton = document.getElementById('finish-survey-button');
+            const form = document.getElementById('part-two-form');
+            const sessionId = getSessionId();
+            
+            debugLog('Showing Part Two form', sessionId);
+            
+            // Hide buttons and show form
+            button.classList.add('hidden');
+            finishButton.classList.add('hidden');
+            form.classList.remove('hidden');
+            
+            // Ensure session ID is available in URL for the second form
+            const url = new URL(window.location);
+            url.searchParams.set('session_id', sessionId);
+            window.history.replaceState({}, '', url);
+        }
+        
+        // Finish survey function
+        function finishSurvey() {
+            debugLog('Finishing survey');
+            
+            // Hide all buttons
+            document.getElementById('part-two-button').classList.add('hidden');
+            document.getElementById('finish-survey-button').classList.add('hidden');
+            
+            // Show completion message
+            document.getElementById('completion-message').classList.remove('hidden');
+            
+            // Log survey completion
+            const sessionId = getSessionId();
+            if (sessionId) {
+                fetch('/api/survey-completed', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionId: sessionId,
+                        timestamp: new Date().toISOString(),
+                        completionType: 'finish_button'
+                    })
+                }).catch(error => {
+                    debugLog('Error logging survey completion', error.message);
+                });
+            }
+        }
+        
+        // Enhanced conversation logging and linking
+        async function linkConversation(conversationId) {
+            const sessionId = getSessionId();
+            if (!sessionId || !conversationId) {
+                debugLog('Cannot link conversation - missing IDs', { sessionId, conversationId });
+                return;
+            }
+            
+            if (conversationLinked) {
+                debugLog('Conversation already linked, skipping');
+                return;
+            }
+            
+            debugLog('Linking conversation to session', { sessionId, conversationId });
+            
+            try {
+                const response = await fetch('/api/link-conversation', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({
+                        sessionId: sessionId,
+                        conversationId: conversationId,
+                        timestamp: new Date().toISOString()
+                    })
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    conversationLinked = true;
+                    debugLog('Conversation linked successfully', result);
+                } else {
+                    const errorText = await response.text();
+                    console.error('Conversation linking failed:', response.status, errorText);
+                    debugLog('Conversation linking failed', `${response.status}: ${errorText}`);
+                }
+                
+            } catch (error) {
+                console.error('Error linking conversation:', error);
+                debugLog('Conversation linking error', error.message);
+            }
+        }
+        
+        async function logConversation(conversationData) {
+            const sessionId = getSessionId();
+            if (!sessionId) return;
+            
+            debugLog('Logging conversation data', conversationData.type);
+            
+            try {
+                await fetch('/api/log-conversation', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({
+                        sessionId: sessionId,
+                        conversationData: conversationData,
+                        timestamp: conversationData.timestamp || new Date().toISOString()
+                    })
+                });
+                
+                // If this is a conversation start event, link it
+                if (conversationData.type === 'conversation_started' && conversationData.data?.conversationId) {
+                    await linkConversation(conversationData.data.conversationId);
+                }
+                
+            } catch (error) {
+                console.error('Error logging conversation:', error);
+                debugLog('Conversation logging error', error.message);
+            }
+        }
+        
+        // Enhanced AI widget functions with better error handling
+        function initializeElevenLabs() {
+            const sessionId = getSessionId();
+            if (!sessionId) {
+                console.error('No session ID found - cannot initialize ElevenLabs');
+                debugLog('ElevenLabs init failed - no session ID');
+                return;
+            }
+            
+            debugLog('Initializing ElevenLabs widget', sessionId);
+            
+            if (!document.getElementById('convai-widget-chat')) {
+                const widget = document.createElement('elevenlabs-convai');
+                widget.setAttribute('agent-id', 'agent_6301k3m6e0are30s5w4wbkx0zzxv');
+                widget.setAttribute('id', 'convai-widget-chat');
+                // Add session context as data attribute
+                widget.setAttribute('data-session-id', sessionId);
+                document.body.appendChild(widget);
+                
+                debugLog('ElevenLabs widget created');
+            }
+            
+            let attempts = 0;
+            const maxAttempts = 15; // Increased attempts
+            
+            function tryOpenWidget() {
+                attempts++;
+                debugLog(`Attempting to open widget (attempt ${attempts})`);
+                
+                // Try multiple ways to open the widget
+                if (window.ElevenLabsConvaiWidget) {
+                    if (window.ElevenLabsConvaiWidget.open) {
+                        try {
+                            window.ElevenLabsConvaiWidget.open();
+                            debugLog('ElevenLabs widget opened successfully');
+                            return true;
+                        } catch (e) {
+                            debugLog('Error opening widget', e.message);
+                        }
+                    }
+                    
+                    // Alternative method
+                    if (window.ElevenLabsConvaiWidget.show) {
+                        try {
+                            window.ElevenLabsConvaiWidget.show();
+                            debugLog('ElevenLabs widget shown successfully');
+                            return true;
+                        } catch (e) {
+                            debugLog('Error showing widget', e.message);
+                        }
+                    }
+                }
+                
+                // Try direct element interaction
+                const widget = document.getElementById('convai-widget-chat');
+                if (widget && widget.open) {
+                    try {
+                        widget.open();
+                        debugLog('Widget opened via element method');
+                        return true;
+                    } catch (e) {
+                        debugLog('Error opening via element', e.message);
+                    }
+                }
+                
+                if (attempts < maxAttempts) {
+                    setTimeout(tryOpenWidget, 750); // Slightly longer delay
+                } else {
+                    debugLog('Failed to open ElevenLabs widget after max attempts');
+                    
+                    // Show fallback message
+                    const message = document.createElement('div');
+                    message.style.cssText = `
+                        background: #f1eada;
+                        color: #584738;
+                        padding: 15px;
+                        border-radius: 8px;
+                        margin: 20px;
+                        border: 1px solid #b5937d;
+                    `;
+                    message.innerHTML = `
+                        <strong>Voice Assistant Not Available</strong><br>
+                        The voice assistant couldn't load. You can still complete Part Two using the form below.
+                    `;
+                    document.body.insertBefore(message, document.body.firstChild);
+                }
+            }
+            
+            setTimeout(tryOpenWidget, 1500); // Longer initial delay
+        }
+        
+        function pollForWidget() {
+            if (window.customElements && window.customElements.get('elevenlabs-convai')) {
+                initializeElevenLabs();
+            } else {
+                setTimeout(pollForWidget, 200);
+            }
+        }
+        
+        function handleFormCompletion(source, formData = null) {
+            if (formCompleted) {
+                debugLog('Form already completed, ignoring duplicate event');
+                return;
+            }
+            
+            formCompleted = true;
+            debugLog('Form completion detected', source);
+            
+            // Submit form data to backend
+            if (formData) {
+                submitFormData(formData);
+            } else {
+                // Submit completion event without form data
+                submitFormData({ completionSource: source });
+            }
+            
+            // Show the Part Two button when form is completed
+            const partTwoButton = document.getElementById('part-two-button');
+            if (partTwoButton) {
+                partTwoButton.classList.remove('hidden');
+                debugLog('Part Two button shown');
+            }
+            
+            // Initialize ElevenLabs widget
+            pollForWidget();
+            initializeConversationLogging();
+        }
+        
+        function showFinishButton() {
+            debugLog('Showing finish survey button');
+            const finishButton = document.getElementById('finish-survey-button');
+            if (finishButton && formCompleted) {
+                finishButton.classList.remove('hidden');
+            }
+        }
+        
+        function initializeConversationLogging() {
+            debugLog('Initializing conversation logging');
+            
+            window.addEventListener('message', function(event) {
+                // Only listen to ElevenLabs events
+                if (!event.origin || 
+                    (event.origin !== 'https://elevenlabs.com' && 
+                     event.origin !== 'https://widget.elevenlabs.com')) {
+                    return;
+                }
+                
+                const { type, data } = event.data || {};
+                if (type && currentSessionId) {
+                    debugLog('Received ElevenLabs event', type);
+                    
+                    // Check if conversation has ended
+                    if (type === 'conversation_ended' || type === 'call_ended' || type === 'widget_closed') {
+                        conversationEnded = true;
+                        showFinishButton();
+                    }
+                    
+                    logConversation({
+                        type,
+                        data,
+                        sessionId: currentSessionId,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+            }, { passive: true });
+        }
+        
+        // Enhanced message listener for form completion
+        window.addEventListener('message', function(event) {
+            // Filter out problematic origins
+            if (event.origin && (
+                event.origin.includes('youtube.com') ||
+                event.origin.includes('google.com') ||
+                event.origin.includes('googlevideo.com')
+            )) {
+                return;
+            }
+            
+            // Only process messages from Fillout
+            if (!event.origin || !event.origin.includes('fillout.com')) {
+                return;
+            }
+            
+            if (event.data) {
+                const data = event.data;
+                debugLog('Received Fillout message', data);
+                
+                // Original format
+                if (data.channel === 'form_channel' && data.state === 'submitted') {
+                    handleFormCompletion('original format', data.formData);
+                    return;
+                }
+                
+                // Common Fillout completion formats
+                if (data.type === 'form_submitted' || 
+                    data.event === 'submitted' || 
+                    data.state === 'complete' ||
+                    data.status === 'submitted' ||
+                    data.action === 'submit' ||
+                    (data.fillout && data.fillout.submitted) ||
+                    (data.form && data.form.submitted)) {
+                    handleFormCompletion('common format', data);
+                    return;
+                }
+                
+                // Check for keywords
+                const messageStr = JSON.stringify(data).toLowerCase();
+                if (messageStr.includes('submit') && !messageStr.includes('button')) {
+                    handleFormCompletion('keyword match', data);
+                    return;
+                }
+            }
+        }, { passive: true });
+        
+        // Enhanced fallback monitoring
+        let formCheckInterval;
+        function startFormMonitoring() {
+            debugLog('Starting form monitoring');
+            
+            formCheckInterval = setInterval(() => {
+                const filloutContainer = document.querySelector('[data-fillout-id]');
+                if (filloutContainer) {
+                    const completionIndicators = [
+                        'thank you',
+                        'submitted',
+                        'complete',
+                        'success',
+                        'received'
+                    ];
+                    
+                    const containerText = filloutContainer.textContent || '';
+                    for (let indicator of completionIndicators) {
+                        if (containerText.toLowerCase().includes(indicator)) {
+                            clearInterval(formCheckInterval);
+                            debugLog('Form completion detected via DOM monitoring', indicator);
+                            handleFormCompletion('DOM monitoring - ' + indicator);
+                            return;
+                        }
+                    }
+                }
+                
+                const currentUrl = window.location.href;
+                if (currentUrl.includes('submitted') || currentUrl.includes('complete') || currentUrl.includes('thank')) {
+                    clearInterval(formCheckInterval);
+                    debugLog('Form completion detected via URL monitoring');
+                    handleFormCompletion('URL monitoring');
+                    return;
+                }
+            }, 1500);
+        }
+        
+        // Global error handling
+        window.addEventListener('error', function(event) {
+            debugLog('JavaScript error detected', event.error?.message);
+        });
+        
+        window.addEventListener('unhandledrejection', function(event) {
+            debugLog('Unhandled promise rejection', event.reason);
+        });
+        
+        // ElevenLabs widget loading
         setTimeout(() => {
-          console.log('MANUAL TRIGGER: Type triggerFormCompletion() in console to test form completion');
-        }, 5000);
-      }
-    }
-    window.triggerFormCompletion = function() {
-      if (debugMode) {
-        debugLog('Manual form completion triggered');
-        handleFormCompletion('manual trigger');
-      }
-    };
-    setTimeout(() => {
-      debugLog('Loading ElevenLabs widget script');
-      const script = document.createElement('script');
-      script.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
-      script.type = 'text/javascript';
-      script.async = true;
-      script.onload = () => debugLog('ElevenLabs script loaded');
-      script.onerror = () => debugLog('ElevenLabs script failed to load');
-      document.head.appendChild(script);
-    }, 2000);
-    window.addEventListener('load', () => {
-      debugLog('Page loaded, initializing application');
-      initializeSession();
-      startFormMonitoring();
-    });
-    window.trurivuDebug = {
-      getSessionId: getSessionId,
-      getCurrentSession: () => currentSessionId,
-      testSessionCreation: createSession,
-      showDebugInfo: () => {
-        const debugEl = document.getElementById('debug-info');
-        if (debugEl) debugEl.style.display = 'block';
-      },
-      getStoredSessions: () => ({
-        localStorage: localStorage.getItem('trurivu_session'),
-        sessionStorage: sessionStorage.getItem('trurivu_session'),
-        window: window.trurivu_session,
-        bodyAttr: document.body.getAttribute('data-session-id')
-      })
-    };
-    // ---------------------------- TRURIVU LOGIC END -----------------------------
-  </script>
+            debugLog('Loading ElevenLabs widget script');
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
+            script.type = 'text/javascript';
+            script.async = true;
+            script.onload = () => debugLog('ElevenLabs script loaded');
+            script.onerror = () => debugLog('ElevenLabs script failed to load');
+            document.head.appendChild(script);
+        }, 2000);
+        
+        // Main initialization
+        window.addEventListener('load', () => {
+            debugLog('Page loaded, initializing application');
+            initializeSession();
+            startFormMonitoring();
+        });
+        
+        // Debugging helpers (available in console)
+        window.trurivuDebug = {
+            getSessionId: getSessionId,
+            getCurrentSession: () => currentSessionId,
+            testSessionCreation: createSession,
+            testFormSubmission: () => submitFormData({ test: true }),
+            showDebugInfo: () => {
+                const debugEl = document.getElementById('debug-info');
+                if (debugEl) debugEl.style.display = 'block';
+            },
+            getStoredSessions: () => ({
+                localStorage: localStorage.getItem('trurivu_session'),
+                sessionStorage: sessionStorage.getItem('trurivu_session'),
+                window: window.trurivu_session,
+                bodyAttr: document.body.getAttribute('data-session-id')
+            })
+        };
+    </script>
+    
+    <!-- Load Fillout embed script -->
+    <script src="https://server.fillout.com/embed/v1/"></script>
 </body>
 </html>
