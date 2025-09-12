@@ -179,7 +179,7 @@
             </div>
             <div class="loading" id="loading">Setting up your session...</div>
             <div id="form-container" style="display: none;">
-                <!-- Main form embedded inline -->
+                <!-- Main form - Fillout script loads AFTER session ID is set -->
                 <div data-fillout-id="9VrrQUs5DCus" data-fillout-embed-type="standard" data-fillout-inherit-parameters data-fillout-dynamic-resize></div>
             </div>
         </div>
@@ -289,16 +289,30 @@
                     currentSessionId = sessionId;
                 }
                 
-                // Update UI
-                document.getElementById('session-display').textContent = sessionId.substring(0, 20) + '...';
-                document.getElementById('session-info').style.display = 'block';
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('form-container').style.display = 'block';
-                
-                // Add session ID to URL parameters for form inheritance
+                // Add session ID to URL parameters FIRST
                 const url = new URL(window.location);
                 url.searchParams.set('session_id', sessionId);
                 window.history.replaceState({}, '', url);
+                
+                debugLog('Session ID added to URL:', sessionId);
+                
+                // NOW load Fillout script after session ID is in URL
+                const filloutScript = document.createElement('script');
+                filloutScript.src = 'https://server.fillout.com/embed/v1/';
+                filloutScript.onload = () => {
+                    debugLog('Fillout script loaded with session ID in URL');
+                    
+                    // Update UI after Fillout is ready
+                    document.getElementById('session-display').textContent = sessionId.substring(0, 20) + '...';
+                    document.getElementById('session-info').style.display = 'block';
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('form-container').style.display = 'block';
+                };
+                filloutScript.onerror = () => {
+                    debugLog('Fillout script failed to load');
+                    document.getElementById('loading').textContent = 'Error loading form. Please refresh.';
+                };
+                document.head.appendChild(filloutScript);
                 
                 debugLog('Session initialized successfully');
                 
@@ -768,7 +782,6 @@
         };
     </script>
     
-    <!-- Load Fillout embed script -->
-    <script src="https://server.fillout.com/embed/v1/"></script>
+    <!-- Fillout script is now loaded dynamically AFTER session ID is set -->
 </body>
 </html>
