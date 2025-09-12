@@ -559,7 +559,7 @@
             }
         }, { passive: true });
         
-        // Fallback form monitoring
+        // Fallback form monitoring with manual trigger option
         let formCheckInterval;
         function startFormMonitoring() {
             debugLog('Starting form monitoring');
@@ -594,7 +594,22 @@
                     return;
                 }
             }, 1500);
+            
+            // Add manual trigger for testing - remove this after testing
+            if (debugMode) {
+                setTimeout(() => {
+                    console.log('MANUAL TRIGGER: Type triggerFormCompletion() in console to test form completion');
+                }, 5000);
+            }
         }
+        
+        // Manual form completion trigger for testing (only available in debug mode)
+        window.triggerFormCompletion = function() {
+            if (debugMode) {
+                debugLog('Manual form completion triggered');
+                handleFormCompletion('manual trigger');
+            }
+        };
         
         // ElevenLabs widget loading
         setTimeout(() => {
