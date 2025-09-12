@@ -220,11 +220,15 @@
         
         // Enhanced session management functions
         function getSessionId() {
-            return window.trurivu_session || 
-                   localStorage.getItem('trurivu_session') || 
-                   sessionStorage.getItem('trurivu_session') ||
-                   document.body.getAttribute('data-session-id');
-        }
+    // For testing, always generate new session - remove this later
+    return null; // This forces createSession() to always run
+    
+    // Original code (re-enable when you want session persistence):
+    // return window.trurivu_session || 
+    //        localStorage.getItem('trurivu_session') || 
+    //        sessionStorage.getItem('trurivu_session') ||
+    //        document.body.getAttribute('data-session-id');
+}
         
         function storeSessionId(sessionId) {
             // Store in multiple places for reliability
