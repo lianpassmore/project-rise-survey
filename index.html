@@ -9,72 +9,159 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@300;400;500;600&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        html, body { height: 100%; margin: 0; padding: 0; }
+        html, body { 
+            height: 100%; 
+            margin: 0; 
+            padding: 0; 
+        }
+        
         body {
             font-family: 'Lexend Deca', system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #f1eada, #fef3c7);
-            color: #3a2f26; line-height: 1.6; min-height: 100vh;
+            background: #584738;
+            color: #f1eada; 
+            line-height: 1.6; 
+            min-height: 100vh;
         }
-        .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px 20px 20px; }
+        
+        .container { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            padding: 40px 20px 20px 20px; 
+        }
+        
         .header {
-            background: none; box-shadow: none; border-left: none;
-            padding: 32px 0 10px 0; margin-bottom: 0; text-align: center;
+            background: none; 
+            box-shadow: none; 
+            border-left: none;
+            padding: 32px 0 10px 0; 
+            margin-bottom: 0; 
+            text-align: center;
         }
+        
         .header h1 {
-            font-family: 'Playfair Display', serif; font-size: 2.6rem;
-            font-weight: 700; margin-bottom: 7px; color: #584738; letter-spacing: -1px;
+            font-family: 'Lexend Deca', system-ui, -apple-system, sans-serif; 
+            font-size: 2.6rem;
+            font-weight: 700; 
+            margin-bottom: 7px; 
+            color: #f1eada; 
+            letter-spacing: -1px;
         }
+        
         .header .tagline {
-            font-family: 'Lexend Deca', system-ui, -apple-system, sans-serif;
-            font-size: 1.25rem; color: #584738; font-weight: 400; margin-bottom: 26px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem; 
+            color: #f1eada; 
+            font-weight: 400; 
+            margin-bottom: 26px;
         }
+        
         .form-section {
-            background: white; padding: 30px; border-radius: 16px;
-            box-shadow: 0 8px 24px rgba(88, 71, 56, 0.1);
-            border-left: 6px solid #b59e7d; margin-top: 24px;
+            background: white; 
+            padding: 30px; 
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            border: 20px solid #b5937d; 
+            margin-top: 24px;
         }
+        
         .session-info {
-            background: #e8f5e8; padding: 10px 15px; border-radius: 8px;
-            margin-bottom: 20px; font-size: 0.93rem; color: #2d5a2d;
-        }
-        .loading { text-align: center; color: #584738; font-style: italic; }
-        .part-two-button {
-            background: #b59e7d;
-            color: white;
-            border: none;
-            padding: 15px 30px;
+            background: #f1eada; 
+            padding: 10px 15px; 
             border-radius: 8px;
-            font-size: 1.1rem;
+            margin-bottom: 20px; 
+            font-size: 0.93rem; 
+            color: #584738;
+            border: 1px solid #b5937d;
+        }
+        
+        .loading { 
+            text-align: center; 
+            color: #f1eada; 
+            font-style: italic; 
+        }
+        
+        .form-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 30px;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        
+        .part-two-button, .finish-survey-button {
+            font-family: 'Lexend Deca', system-ui, -apple-system, sans-serif;
+            background: #b5937d;
+            color: #f1eada;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
             font-weight: 500;
             cursor: pointer;
-            margin-top: 40px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
             transition: background-color 0.3s ease;
+            flex-shrink: 0;
         }
+        
+        .finish-survey-button {
+            background: #8b7355;
+        }
+        
         .part-two-button:hover {
             background: #a08968;
         }
-        .part-two-button:disabled {
+        
+        .finish-survey-button:hover {
+            background: #6d5940;
+        }
+        
+        .part-two-button:disabled, .finish-survey-button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
+        
         .part-two-section {
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 2px solid #e8f5e8;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(241, 234, 218, 0.2);
         }
+        
+        .completion-message {
+            background: rgba(241, 234, 218, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            color: #f1eada;
+            font-weight: 500;
+            border: 1px solid #b5937d;
+        }
+        
         .hidden {
             display: none;
         }
+        
         .debug-info {
-            background: #f0f0f0;
+            background: rgba(241, 234, 218, 0.1);
             padding: 10px;
             border-radius: 5px;
             margin-top: 10px;
             font-size: 0.85rem;
             font-family: monospace;
+            color: #f1eada;
+            border: 1px solid #b5937d;
+        }
+        
+        /* Mobile responsiveness for buttons */
+        @media (max-width: 768px) {
+            .form-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .part-two-button, .finish-survey-button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
         }
     </style>
 </head>
@@ -98,7 +185,13 @@
         </div>
         
         <div class="part-two-section">
-            <button class="part-two-button hidden" id="part-two-button" onclick="showPartTwoForm()">Complete Part Two as a Form</button>
+            <div class="form-buttons">
+                <button class="part-two-button hidden" id="part-two-button" onclick="showPartTwoForm()">Complete Part Two as a Form</button>
+                <button class="finish-survey-button hidden" id="finish-survey-button" onclick="finishSurvey()">Finish Survey</button>
+            </div>
+            <div class="completion-message hidden" id="completion-message">
+                Thank you for participating in Project Rise! Your feedback has been recorded.
+            </div>
             <div class="form-section hidden" id="part-two-form">
                 <div data-fillout-id="vhcWW87iwius" data-fillout-embed-type="standard" data-fillout-inherit-parameters data-fillout-dynamic-resize></div>
             </div>
@@ -110,6 +203,7 @@
         let formCompleted = false;
         let currentSessionId = null;
         let conversationLinked = false;
+        let conversationEnded = false;
         let debugMode = window.location.search.includes('debug=true');
         
         // Debug logging function
@@ -257,19 +351,49 @@
         // Show Part Two form function with session ID passing
         function showPartTwoForm() {
             const button = document.getElementById('part-two-button');
+            const finishButton = document.getElementById('finish-survey-button');
             const form = document.getElementById('part-two-form');
             const sessionId = getSessionId();
             
             debugLog('Showing Part Two form', sessionId);
             
-            // Hide button and show form
+            // Hide buttons and show form
             button.classList.add('hidden');
+            finishButton.classList.add('hidden');
             form.classList.remove('hidden');
             
             // Ensure session ID is available in URL for the second form
             const url = new URL(window.location);
             url.searchParams.set('session_id', sessionId);
             window.history.replaceState({}, '', url);
+        }
+        
+        // Finish survey function
+        function finishSurvey() {
+            debugLog('Finishing survey');
+            
+            // Hide all buttons
+            document.getElementById('part-two-button').classList.add('hidden');
+            document.getElementById('finish-survey-button').classList.add('hidden');
+            
+            // Show completion message
+            document.getElementById('completion-message').classList.remove('hidden');
+            
+            // Log survey completion
+            const sessionId = getSessionId();
+            if (sessionId) {
+                fetch('/api/survey-completed', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionId: sessionId,
+                        timestamp: new Date().toISOString(),
+                        completionType: 'finish_button'
+                    })
+                }).catch(error => {
+                    debugLog('Error logging survey completion', error.message);
+                });
+            }
         }
         
         // Enhanced conversation logging and linking
@@ -346,11 +470,12 @@
             }
         }
         
-        // Enhanced AI widget functions with session context
+        // Enhanced AI widget functions with better error handling
         function initializeElevenLabs() {
             const sessionId = getSessionId();
             if (!sessionId) {
                 console.error('No session ID found - cannot initialize ElevenLabs');
+                debugLog('ElevenLabs init failed - no session ID');
                 return;
             }
             
@@ -368,24 +493,72 @@
             }
             
             let attempts = 0;
-            const maxAttempts = 10;
+            const maxAttempts = 15; // Increased attempts
             
             function tryOpenWidget() {
                 attempts++;
                 debugLog(`Attempting to open widget (attempt ${attempts})`);
                 
-                if (window.ElevenLabsConvaiWidget && window.ElevenLabsConvaiWidget.open) {
-                    window.ElevenLabsConvaiWidget.open();
-                    debugLog('ElevenLabs widget opened successfully');
-                    return true;
-                } else if (attempts < maxAttempts) {
-                    setTimeout(tryOpenWidget, 500);
+                // Try multiple ways to open the widget
+                if (window.ElevenLabsConvaiWidget) {
+                    if (window.ElevenLabsConvaiWidget.open) {
+                        try {
+                            window.ElevenLabsConvaiWidget.open();
+                            debugLog('ElevenLabs widget opened successfully');
+                            return true;
+                        } catch (e) {
+                            debugLog('Error opening widget', e.message);
+                        }
+                    }
+                    
+                    // Alternative method
+                    if (window.ElevenLabsConvaiWidget.show) {
+                        try {
+                            window.ElevenLabsConvaiWidget.show();
+                            debugLog('ElevenLabs widget shown successfully');
+                            return true;
+                        } catch (e) {
+                            debugLog('Error showing widget', e.message);
+                        }
+                    }
+                }
+                
+                // Try direct element interaction
+                const widget = document.getElementById('convai-widget-chat');
+                if (widget && widget.open) {
+                    try {
+                        widget.open();
+                        debugLog('Widget opened via element method');
+                        return true;
+                    } catch (e) {
+                        debugLog('Error opening via element', e.message);
+                    }
+                }
+                
+                if (attempts < maxAttempts) {
+                    setTimeout(tryOpenWidget, 750); // Slightly longer delay
                 } else {
                     debugLog('Failed to open ElevenLabs widget after max attempts');
+                    
+                    // Show fallback message
+                    const message = document.createElement('div');
+                    message.style.cssText = `
+                        background: #f1eada;
+                        color: #584738;
+                        padding: 15px;
+                        border-radius: 8px;
+                        margin: 20px;
+                        border: 1px solid #b5937d;
+                    `;
+                    message.innerHTML = `
+                        <strong>Voice Assistant Not Available</strong><br>
+                        The voice assistant couldn't load. You can still complete Part Two using the form below.
+                    `;
+                    document.body.insertBefore(message, document.body.firstChild);
                 }
             }
             
-            setTimeout(tryOpenWidget, 1000);
+            setTimeout(tryOpenWidget, 1500); // Longer initial delay
         }
         
         function pollForWidget() {
@@ -425,6 +598,14 @@
             initializeConversationLogging();
         }
         
+        function showFinishButton() {
+            debugLog('Showing finish survey button');
+            const finishButton = document.getElementById('finish-survey-button');
+            if (finishButton && formCompleted) {
+                finishButton.classList.remove('hidden');
+            }
+        }
+        
         function initializeConversationLogging() {
             debugLog('Initializing conversation logging');
             
@@ -439,6 +620,13 @@
                 const { type, data } = event.data || {};
                 if (type && currentSessionId) {
                     debugLog('Received ElevenLabs event', type);
+                    
+                    // Check if conversation has ended
+                    if (type === 'conversation_ended' || type === 'call_ended' || type === 'widget_closed') {
+                        conversationEnded = true;
+                        showFinishButton();
+                    }
+                    
                     logConversation({
                         type,
                         data,
