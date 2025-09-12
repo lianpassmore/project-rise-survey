@@ -300,6 +300,9 @@
                 url.searchParams.set('session_id', sessionId);
                 window.history.replaceState({}, '', url);
                 
+                // Also manually inject session_id into Fillout forms
+                injectSessionIdIntoForms(sessionId);
+                
                 debugLog('Session initialized successfully');
                 
             } catch (error) {
@@ -307,6 +310,42 @@
                 debugLog('Session initialization failed', error.message);
                 document.getElementById('loading').textContent = 'Error setting up session. Please refresh.';
             }
+        }
+        
+        // Function to manually inject session_id into Fillout forms
+        function injectSessionIdIntoForms(sessionId) {
+            debugLog('Injecting session ID into forms', sessionId);
+            
+            // Wait for Fillout to load, then inject session_id
+            setTimeout(() => {
+                const forms = document.querySelectorAll('[data-fillout-id]');
+                forms.forEach(form => {
+                    const filloutId = form.getAttribute('data-fillout-id');
+                    const currentSrc = form.querySelector('iframe')?.src;
+                    
+                    if (currentSrc && !currentSrc.includes('session_id=')) {
+                        const newSrc = currentSrc + (currentSrc.includes('?') ? '&' : '?') + `session_id=${sessionId}`;
+                        const iframe = form.querySelector('iframe');
+                        if (iframe) {
+                            iframe.src = newSrc;
+                            debugLog(`Updated form ${filloutId} with session_id`);
+                        }
+                    }
+                });
+            }, 2000);
+            
+            // Also inject when forms are dynamically loaded
+            const observer = new MutationObserver(() => {
+                const iframes = document.querySelectorAll('iframe[src*="fillout.com"]');
+                iframes.forEach(iframe => {
+                    if (!iframe.src.includes('session_id=')) {
+                        iframe.src += (iframe.src.includes('?') ? '&' : '?') + `session_id=${sessionId}`;
+                        debugLog('Added session_id to dynamically loaded form');
+                    }
+                });
+            });
+            
+            observer.observe(document.body, { childList: true, subtree: true });
         }
         
         // Enhanced form completion handling
