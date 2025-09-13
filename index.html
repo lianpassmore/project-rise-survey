@@ -218,26 +218,48 @@
             }
         }
         
-        // Enhanced session management functions
-        function getSessionId() {
-            return window.trurivu_session || 
-                   localStorage.getItem('trurivu_session') || 
-                   sessionStorage.getItem('trurivu_session') ||
-                   document.body.getAttribute('data-session-id');
+        // SIMPLIFIED SESSION MANAGEMENT - ALWAYS CREATE NEW
+        function generateFreshSessionId() {
+            // Clear any existing session data first
+            clearAllSessionData();
+            
+            // Generate a completely new session ID
+            const timestamp = Date.now();
+            const randomPart = Math.random().toString(36).substr(2, 12);
+            const sessionId = `RISE_${timestamp}_${randomPart}`;
+            
+            debugLog('Generated fresh session ID', sessionId);
+            return sessionId;
+        }
+        
+        function clearAllSessionData() {
+            // Clear all possible storage locations
+            try {
+                localStorage.removeItem('trurivu_session');
+                sessionStorage.removeItem('trurivu_session');
+                delete window.trurivu_session;
+                document.body.removeAttribute('data-session-id');
+                debugLog('Cleared all existing session data');
+            } catch (error) {
+                debugLog('Error clearing session data', error.message);
+            }
         }
         
         function storeSessionId(sessionId) {
-            // Store in multiple places for reliability
+            // Store the new session ID everywhere
             window.trurivu_session = sessionId;
-            localStorage.setItem('trurivu_session', sessionId);
             sessionStorage.setItem('trurivu_session', sessionId);
             document.body.setAttribute('data-session-id', sessionId);
             currentSessionId = sessionId;
-            debugLog('Session ID stored', sessionId);
+            debugLog('Fresh session ID stored', sessionId);
         }
         
         async function createSession() {
-            debugLog('Attempting to create session...');
+            debugLog('Creating fresh session...');
+            
+            // Always generate a new session ID
+            const sessionId = generateFreshSessionId();
+            
             try {
                 const response = await fetch('/api/create-session', {
                     method: 'POST',
@@ -245,9 +267,11 @@
                         'Content-Type': 'application/json' 
                     },
                     body: JSON.stringify({ 
+                        sessionId: sessionId, // Send our generated ID
                         timestamp: new Date().toISOString(),
                         source: 'trurivu-form',
-                        userAgent: navigator.userAgent
+                        userAgent: navigator.userAgent,
+                        isNew: true // Flag this as a new session
                     })
                 });
                 
@@ -256,54 +280,40 @@
                 }
                 
                 const data = await response.json();
-                const sessionId = data.sessionId || data.id;
-                
-                if (!sessionId) {
-                    throw new Error('No session ID returned from API');
-                }
-                
-                debugLog('Session created successfully', sessionId);
+                // Use our generated ID regardless of API response
+                debugLog('Session API call successful, using our generated ID', sessionId);
                 return sessionId;
                 
             } catch (error) {
-                console.error('Session creation failed:', error);
-                debugLog('Session creation failed, using fallback', error.message);
-                
-                // Fallback session ID generation
-                const fallbackId = 'RISE_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                debugLog('Generated fallback session ID', fallbackId);
-                return fallbackId;
+                console.error('Session API failed, using generated ID anyway:', error);
+                debugLog('Session API failed, using generated ID', error.message);
+                return sessionId; // Still use our generated ID
             }
         }
         
         async function initializeSession() {
-            debugLog('Initializing session...');
+            debugLog('Initializing fresh session...');
+            
             try {
-                let sessionId = getSessionId();
-                
-                if (!sessionId) {
-                    sessionId = await createSession();
-                    storeSessionId(sessionId);
-                } else {
-                    debugLog('Using existing session ID', sessionId);
-                    currentSessionId = sessionId;
-                }
+                // ALWAYS create a new session - no checking for existing ones
+                const sessionId = await createSession();
+                storeSessionId(sessionId);
                 
                 // Add session ID to URL parameters FIRST
                 const url = new URL(window.location);
                 url.searchParams.set('session_id', sessionId);
                 window.history.replaceState({}, '', url);
                 
-                debugLog('Session ID added to URL:', sessionId);
+                debugLog('Fresh session ID added to URL:', sessionId);
                 
                 // NOW load Fillout script after session ID is in URL
                 const filloutScript = document.createElement('script');
                 filloutScript.src = 'https://server.fillout.com/embed/v1/';
                 filloutScript.onload = () => {
-                    debugLog('Fillout script loaded with session ID in URL');
+                    debugLog('Fillout script loaded with fresh session ID in URL');
                     
                     // Update UI after Fillout is ready
-                    document.getElementById('session-display').textContent = sessionId.substring(0, 20) + '...';
+                    document.getElementById('session-display').textContent = sessionId.substring(0, 25) + '...';
                     document.getElementById('session-info').style.display = 'block';
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('form-container').style.display = 'block';
@@ -314,7 +324,7 @@
                 };
                 document.head.appendChild(filloutScript);
                 
-                debugLog('Session initialized successfully');
+                debugLog('Fresh session initialized successfully', sessionId);
                 
             } catch (error) {
                 console.error('Session initialization failed:', error);
@@ -325,7 +335,7 @@
         
         // Enhanced form completion handling
         async function submitFormData(formData) {
-            const sessionId = getSessionId();
+            const sessionId = currentSessionId;
             if (!sessionId) {
                 console.error('No session ID available for form submission');
                 return;
@@ -367,7 +377,7 @@
             const button = document.getElementById('part-two-button');
             const finishButton = document.getElementById('finish-survey-button');
             const form = document.getElementById('part-two-form');
-            const sessionId = getSessionId();
+            const sessionId = currentSessionId;
             
             debugLog('Showing Part Two form', sessionId);
             
@@ -394,7 +404,7 @@
             document.getElementById('completion-message').classList.remove('hidden');
             
             // Log survey completion
-            const sessionId = getSessionId();
+            const sessionId = currentSessionId;
             if (sessionId) {
                 fetch('/api/survey-completed', {
                     method: 'POST',
@@ -412,7 +422,7 @@
         
         // Enhanced conversation logging and linking
         async function linkConversation(conversationId) {
-            const sessionId = getSessionId();
+            const sessionId = currentSessionId;
             if (!sessionId || !conversationId) {
                 debugLog('Cannot link conversation - missing IDs', { sessionId, conversationId });
                 return;
@@ -455,7 +465,7 @@
         }
         
         async function logConversation(conversationData) {
-            const sessionId = getSessionId();
+            const sessionId = currentSessionId;
             if (!sessionId) return;
             
             debugLog('Logging conversation data', conversationData.type);
@@ -484,9 +494,8 @@
             }
         }
         
-        // Enhanced AI widget functions with better error handling
+        // UPDATED: Enhanced AI widget functions with session ID as dynamic variable
         function initializeElevenLabs() {
-            // Use currentSessionId which is guaranteed to be set during initialization
             const sessionId = currentSessionId;
             if (!sessionId) {
                 console.error('No session ID found - cannot initialize ElevenLabs');
@@ -494,21 +503,27 @@
                 return;
             }
             
-            debugLog('Initializing ElevenLabs widget', sessionId);
+            debugLog('Initializing ElevenLabs widget with session ID', sessionId);
             
             if (!document.getElementById('convai-widget-chat')) {
                 const widget = document.createElement('elevenlabs-convai');
                 widget.setAttribute('agent-id', 'agent_6301k3m6e0are30s5w4wbkx0zzxv');
                 widget.setAttribute('id', 'convai-widget-chat');
-                // Add session context as data attribute
+                
+                // CRITICAL: Pass session ID as dynamic variable to ElevenLabs
+                widget.setAttribute('dynamic-variables', JSON.stringify({
+                    "session_id": sessionId
+                }));
+                
+                // Keep session context as data attribute for debugging
                 widget.setAttribute('data-session-id', sessionId);
                 document.body.appendChild(widget);
                 
-                debugLog('ElevenLabs widget created');
+                debugLog('ElevenLabs widget created with session ID dynamic variable', sessionId);
             }
             
             let attempts = 0;
-            const maxAttempts = 15; // Increased attempts
+            const maxAttempts = 15;
             
             function tryOpenWidget() {
                 attempts++;
@@ -551,7 +566,7 @@
                 }
                 
                 if (attempts < maxAttempts) {
-                    setTimeout(tryOpenWidget, 750); // Slightly longer delay
+                    setTimeout(tryOpenWidget, 750);
                 } else {
                     debugLog('Failed to open ElevenLabs widget after max attempts');
                     
@@ -573,7 +588,7 @@
                 }
             }
             
-            setTimeout(tryOpenWidget, 1500); // Longer initial delay
+            setTimeout(tryOpenWidget, 1500);
         }
         
         function pollForWidget() {
@@ -757,29 +772,35 @@
             document.head.appendChild(script);
         }, 2000);
         
-        // Main initialization
+        // MAIN INITIALIZATION - ALWAYS START FRESH
         window.addEventListener('load', () => {
-            debugLog('Page loaded, initializing application');
-            initializeSession();
+            debugLog('Page loaded, clearing any old sessions and initializing fresh');
+            clearAllSessionData(); // Clear everything first
+            initializeSession();   // Then create completely new session
             startFormMonitoring();
+        });
+        
+        // Also clear on page focus (when user comes back to tab)
+        window.addEventListener('focus', () => {
+            if (!currentSessionId) {
+                debugLog('Page focused with no session, creating fresh session');
+                clearAllSessionData();
+                initializeSession();
+            }
         });
         
         // Debugging helpers (available in console)
         window.trurivuDebug = {
-            getSessionId: getSessionId,
             getCurrentSession: () => currentSessionId,
-            testSessionCreation: createSession,
-            testFormSubmission: () => submitFormData({ test: true }),
+            generateNewSession: () => {
+                clearAllSessionData();
+                initializeSession();
+            },
             showDebugInfo: () => {
                 const debugEl = document.getElementById('debug-info');
                 if (debugEl) debugEl.style.display = 'block';
             },
-            getStoredSessions: () => ({
-                localStorage: localStorage.getItem('trurivu_session'),
-                sessionStorage: sessionStorage.getItem('trurivu_session'),
-                window: window.trurivu_session,
-                bodyAttr: document.body.getAttribute('data-session-id')
-            })
+            clearEverything: clearAllSessionData
         };
     </script>
     
