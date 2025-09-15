@@ -569,22 +569,7 @@
                     setTimeout(tryOpenWidget, 750);
                 } else {
                     debugLog('Failed to open ElevenLabs widget after max attempts');
-                    
-                    // Show fallback message
-                    const message = document.createElement('div');
-                    message.style.cssText = `
-                        background: #f1eada;
-                        color: #584738;
-                        padding: 15px;
-                        border-radius: 8px;
-                        margin: 20px;
-                        border: 1px solid #b5937d;
-                    `;
-                    message.innerHTML = `
-                        <strong>Voice Assistant Not Available</strong><br>
-                        The voice assistant couldn't load. You can still complete Part Two using the form below.
-                    `;
-                    document.body.insertBefore(message, document.body.firstChild);
+                    // Popup message removed - no user-facing error message
                 }
             }
             
